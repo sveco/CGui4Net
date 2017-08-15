@@ -6,10 +6,8 @@ using System.Threading.Tasks;
 
 namespace CGui.Gui
 {
-    public class ListItem<T>
+    public interface IUpdatable
     {
-        public int Index;
-        public string DisplayText;
-        public T Value;
+        void Load();
     }
 }

@@ -1,24 +1,33 @@
-﻿using System;
+﻿using CGui.Gui.Primitives;
+using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace CGui.Gui
 {
-    public class List<T>: GuiElement
+    public class List<T> : GuiElement
     {
         public int MaxItems = 8;
         public int Offset = 0;
-        public IList<ListItem<T>> ListItems { get; private set; }
+        public bool ShowScrollbar = false;
+        private string ScrollBarChar = "█";
+        public IList<ListItem<T>> ListItems;
         public int SelectedItemIndex = 0;
         public int SelectionPos = 0;
-        public int TotalItems {
-            get { return ListItems.Count(); }
-        }
 
-        public delegate void OnItemKey(ListItem<T> selectedItem);
+        public int TotalItems {get { return ListItems.Count();}}
+
+        public override int Top { get; set; }
+        public override int Left { get; set; }
+        public override int Width { get; set; }
+
+        public delegate bool OnItemKey(ConsoleKey key, ListItem<T> selectedItem);
         public event OnItemKey OnItemKeyHandler;
+
+        public delegate bool OnItemChanged(ListItem<T> selectedItem);
+        public event OnItemChanged OnItemChangedHandler;
 
         public List(IList<ListItem<T>> items) {
             this.ListItems = items;
@@ -26,12 +35,13 @@ namespace CGui.Gui
 
         public override void Show() {
             Console.CursorVisible = false;
-            this.RenderElement();
+            this.RenderControl();
             this.Select();
         }
 
         private void Select()
         {
+            bool cont = true;
             do
             {
                 var key = Console.ReadKey(true);
@@ -43,13 +53,13 @@ namespace CGui.Gui
                         if (SelectionPos - 1 < 0) {
                             if (Offset > 0) {
                                 Offset--;
-                                RenderElement();
+                                RenderControl();
                             }
                         }
                         else {
                             SelectionPos--;
-                            UpdateItem(prevItem);
-                            UpdateItem(SelectionPos);
+                            RenderItem(prevItem);
+                            RenderItem(SelectionPos);
                         }
 
                         break;
@@ -58,27 +68,25 @@ namespace CGui.Gui
                         if (SelectionPos + 1 >= MaxItems)
                         {
                             if (Offset + MaxItems < TotalItems) { Offset++; }
-                            RenderElement();
+                            RenderControl();
                         }
                         else {
                             SelectionPos++;
-                            UpdateItem(prevItem);
-                            UpdateItem(SelectionPos);
+                            RenderItem(prevItem);
+                            RenderItem(SelectionPos);
                         }
                         break;
-                    case ConsoleKey.Escape:
-                        return;
 
                     default:
-                        OnItemKeyHandler(this.ListItems[SelectedItemIndex]);
+                        cont = OnItemKeyHandler(key.Key, this.ListItems[SelectedItemIndex]);
                         break;
                     
                 }
 
-            } while (true);
+            } while (cont);
         }
 
-        protected void UpdateItem(int Index)
+        protected void RenderItem(int Index)
         {
             Console.SetCursorPosition(this.Left, this.Top + Index);
             if (SelectionPos == Index)
@@ -94,10 +102,10 @@ namespace CGui.Gui
             }
         }
 
-        protected void RenderElement() {
+        private void RenderControl() {
             for (int i = 0; i < Math.Min(MaxItems, TotalItems - Offset); i++)
             {
-                UpdateItem(i);
+                RenderItem(i);
             }
         }
 
@@ -107,14 +115,37 @@ namespace CGui.Gui
             switch (this.TextAlignment)
             {
                 case TextAlignment.Left:
-                    return result.PadRight(this.Width);
+                    result = result.PadRight(this.Width, this.PadChar);
+                    break;
 
                 case TextAlignment.Right:
-                    return result.PadLeft(this.Width);
+                    result = result.PadLeft(this.Width, this.PadChar);
+                    break;
 
                 case TextAlignment.Center:
-                    return result.PadBoth(this.Width);
+                    result = result.PadBoth(this.Width, this.PadChar);
+                    break;
             }
+
+            if (ShowScrollbar && MaxItems < TotalItems)
+            {
+                var ratio = (double)MaxItems / TotalItems;
+                int size = (int)Math.Ceiling((double)MaxItems * ratio);
+                var top = Math.Ceiling(Offset * ratio);
+                Debug.WriteLine(top);
+
+                bool show = index - Offset > top
+                    && index - Offset < size + top;
+  
+                if (show)
+                {
+                    result = result + ScrollBarChar;
+                }
+                else {
+                    result = result + this.PadChar;
+                }
+            }
+
             return result;
         }
     }

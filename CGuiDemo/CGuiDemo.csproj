@@ -4,13 +4,14 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{7579FB0B-6900-4C21-8660-EDD8F99943A7}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <RootNamespace>CGui</RootNamespace>
-    <AssemblyName>CGui</AssemblyName>
+    <ProjectGuid>{98EC16F8-C664-41E3-B419-88E7A03D36E4}</ProjectGuid>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>CGuiDemo</RootNamespace>
+    <AssemblyName>CGuiDemo</AssemblyName>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -31,9 +32,6 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
-  <PropertyGroup>
-    <StartupObject />
-  </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -45,19 +43,17 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Gui\IUpdatable.cs" />
-    <Compile Include="Gui\Primitives\GuiElement.cs" />
-    <Compile Include="Gui\Header.cs" />
-    <Compile Include="Gui\List.cs" />
-    <Compile Include="Gui\Primitives\ListItem.cs" />
-    <Compile Include="Gui\Footer.cs" />
-    <Compile Include="Gui\Primitives\Line.cs" />
-    <Compile Include="Gui\StringExtensions.cs" />
-    <Compile Include="Gui\Viewport.cs" />
+    <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\CGui\CGui.csproj">
+      <Project>{7579fb0b-6900-4c21-8660-edd8f99943a7}</Project>
+      <Name>CGui</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

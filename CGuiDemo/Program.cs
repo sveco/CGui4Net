@@ -1,4 +1,5 @@
 ﻿using CGui.Gui;
+using CGui.Gui.Primitives;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -6,7 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CGui
+namespace CGuiDemo
 {
     class Program
     {
@@ -23,7 +24,10 @@ namespace CGui
             new ListItem<string>() { DisplayText = "Test 10", Index = 1, Value = "Test Value 10" },
             new ListItem<string>() { DisplayText = "Test 11", Index = 1, Value = "Test Value 11" },
             new ListItem<string>() { DisplayText = "Test 12", Index = 1, Value = "Test Value 12" },
-            new ListItem<string>() { DisplayText = "Test 13", Index = 1, Value = "Test Value 13" }
+            new ListItem<string>() { DisplayText = "Test 13", Index = 1, Value = "Test Value 13" },
+            new ListItem<string>() { DisplayText = "Test 14", Index = 1, Value = "Test Value 14" },
+            new ListItem<string>() { DisplayText = "Test 15", Index = 1, Value = "Test Value 15" },
+            new ListItem<string>() { DisplayText = "Test 16", Index = 1, Value = "Test Value 16" }
         };
 
         public static void HandleKey(ListItem<string> item)
@@ -31,21 +35,49 @@ namespace CGui
             Debug.WriteLine(item.Value);
         }
 
+        static Header h;
+        static Footer f;
+
         static void Main(string[] args)
         {
-            var l = new Gui.List<string>(list);
-            l.OnItemKeyHandler += List_OnItemKeyHandler;
-            l.Left = 10;
-            l.Top = 2;
-            l.TextAlignment = TextAlignment.Center;
-            l.Show();
+            h = new CGui.Gui.Header("Test App 1");
+            h.TextAlignment = TextAlignment.Center;
+            h.PadChar = '=';
+            h.Show();
 
-            Console.ReadKey();
+            f = new CGui.Gui.Footer("Status bar here  ");
+            f.TextAlignment = TextAlignment.Right;
+            f.PadChar = '=';
+            f.Show();
+
+            var l = new CGui.Gui.List<string>(list);
+            l.OnItemKeyHandler += List_OnItemKeyHandler;
+            l.Left = 0;
+            l.Top = 2;
+            l.Width = 40;
+            l.TextAlignment = TextAlignment.Left;
+            l.ShowScrollbar = false;
+            l.Show();
         }
 
-        private static void List_OnItemKeyHandler(ListItem<string> selectedItem)
+
+
+        private static bool List_OnItemKeyHandler(ConsoleKey key, ListItem<string> selectedItem)
         {
-            Debug.WriteLine(selectedItem.Value);
+            if (key == ConsoleKey.Enter)
+            {
+                //Debug.WriteLine(selectedItem.Value);
+                if (f != null)
+                {
+                    f.DisplayText = "Selected: " + selectedItem.Value;
+                }
+            }
+            if (key == ConsoleKey.Escape)
+            {
+                return false;
+            }
+
+            return true;
         }
     }
 }

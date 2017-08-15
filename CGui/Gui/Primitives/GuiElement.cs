@@ -4,9 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CGui.Gui
+namespace CGui.Gui.Primitives
 {
-
     public enum TextAlignment {
         Left,
         Center,
@@ -20,15 +19,13 @@ namespace CGui.Gui
         public ConsoleColor SelectedForegroundColor = ConsoleColor.DarkBlue;
         public ConsoleColor SelectedBackgroundColor = ConsoleColor.Green;
 
-        public string Header { get; set; }
-        public string Footer { get; set; }
-
-        public int Top = 0;
-        public int Left = 0;
-        public int Width = 10;
+        abstract public int Top { get; set; }
+        abstract public int Left { get; set; }
+        abstract public int Width { get; set; }
 
         public abstract void Show();
 
         public TextAlignment TextAlignment = TextAlignment.Left;
+        public char PadChar = ' ';
     }
 }

@@ -10,9 +10,13 @@ namespace CGui.Gui
     {
         public static string PadBoth(this string str, int length)
         {
+            return PadBoth(str, length, ' ');
+        }
+        public static string PadBoth(this string str, int length, char padChar)
+        {
             int spaces = length - str.Length;
             int padLeft = spaces / 2 + str.Length;
-            return str.PadLeft(padLeft).PadRight(length);
+            return str.PadLeft(padLeft, padChar).PadRight(length, padChar);
         }
     }
 }

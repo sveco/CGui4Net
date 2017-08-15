@@ -6,6 +6,12 @@ using System.Threading.Tasks;
 
 namespace CGui.Gui
 {
+
+    public enum TextAlignment {
+        Left,
+        Center,
+        Right
+    }
     public abstract class GuiElement
     {
         public ConsoleColor ForegroundColor = Console.ForegroundColor;
@@ -19,7 +25,10 @@ namespace CGui.Gui
 
         public int Top = 0;
         public int Left = 0;
+        public int Width = 10;
 
         public abstract void Show();
+
+        public TextAlignment TextAlignment = TextAlignment.Left;
     }
 }

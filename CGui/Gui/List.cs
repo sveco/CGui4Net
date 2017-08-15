@@ -12,6 +12,10 @@ namespace CGui.Gui
         public int Offset = 0;
         public IList<ListItem<T>> ListItems { get; private set; }
         public int SelectedItemIndex = 0;
+        public int SelectionPos = 0;
+        public int TotalItems {
+            get { return ListItems.Count(); }
+        }
 
         public delegate void OnItemKey(ListItem<T> selectedItem);
         public event OnItemKey OnItemKeyHandler;
@@ -31,16 +35,36 @@ namespace CGui.Gui
             do
             {
                 var key = Console.ReadKey(true);
-                var prevItem = SelectedItemIndex;
+                var prevItem = SelectionPos;
                 switch (key.Key)
                 {
                     case ConsoleKey.UpArrow:
-                        if (SelectedItemIndex - 1 < Offset) { SelectedItemIndex = Math.Min(MaxItems, ListItems.Count()) - 1; }
-                        else { SelectedItemIndex--; }
+                        if (SelectedItemIndex > 0) { SelectedItemIndex--; }
+                        if (SelectionPos - 1 < 0) {
+                            if (Offset > 0) {
+                                Offset--;
+                                RenderElement();
+                            }
+                        }
+                        else {
+                            SelectionPos--;
+                            UpdateItem(prevItem);
+                            UpdateItem(SelectionPos);
+                        }
+
                         break;
                     case ConsoleKey.DownArrow:
-                        if (SelectedItemIndex + 1 >= Math.Min(MaxItems, ListItems.Count())) { SelectedItemIndex = Offset; }
-                        else { SelectedItemIndex++; }
+                        if (SelectedItemIndex + 1 < TotalItems) { SelectedItemIndex++; }
+                        if (SelectionPos + 1 >= MaxItems)
+                        {
+                            if (Offset + MaxItems < TotalItems) { Offset++; }
+                            RenderElement();
+                        }
+                        else {
+                            SelectionPos++;
+                            UpdateItem(prevItem);
+                            UpdateItem(SelectionPos);
+                        }
                         break;
                     case ConsoleKey.Escape:
                         return;
@@ -50,21 +74,20 @@ namespace CGui.Gui
                         break;
                     
                 }
-                UpdateItem(prevItem);
-                UpdateItem(SelectedItemIndex);
+
             } while (true);
         }
 
         protected void UpdateItem(int Index)
         {
             Console.SetCursorPosition(this.Left, this.Top + Index);
-            if (SelectedItemIndex == Index)
+            if (SelectionPos == Index)
             {
                 Console.ForegroundColor = this.SelectedForegroundColor;
                 Console.BackgroundColor = this.SelectedBackgroundColor;
             }
-            Console.WriteLine(ListItems[Index].DisplayText);
-            if (SelectedItemIndex == Index)
+            Console.WriteLine(GetDisplayText(Index + Offset));
+            if (SelectionPos == Index)
             {
                 Console.ForegroundColor = this.ForegroundColor;
                 Console.BackgroundColor = this.BackgroundColor;
@@ -72,15 +95,27 @@ namespace CGui.Gui
         }
 
         protected void RenderElement() {
-            Console.SetCursorPosition(this.Left, this.Top);
-            int displayed = 0;
-
-            for (int i = Offset; i < Math.Min(MaxItems, ListItems.Count()); i++)
+            for (int i = 0; i < Math.Min(MaxItems, TotalItems - Offset); i++)
             {
-                if (displayed < Offset) { continue; }
-
                 UpdateItem(i);
             }
+        }
+
+        protected string GetDisplayText(int index)
+        {
+            string result = ListItems[index].DisplayText;
+            switch (this.TextAlignment)
+            {
+                case TextAlignment.Left:
+                    return result.PadRight(this.Width);
+
+                case TextAlignment.Right:
+                    return result.PadLeft(this.Width);
+
+                case TextAlignment.Center:
+                    return result.PadBoth(this.Width);
+            }
+            return result;
         }
     }
 }

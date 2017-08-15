@@ -35,6 +35,9 @@ namespace CGui
         {
             var l = new Gui.List<string>(list);
             l.OnItemKeyHandler += List_OnItemKeyHandler;
+            l.Left = 10;
+            l.Top = 2;
+            l.TextAlignment = TextAlignment.Center;
             l.Show();
 
             Console.ReadKey();

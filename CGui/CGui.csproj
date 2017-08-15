@@ -45,6 +45,7 @@
     <Compile Include="Gui\GuiElement.cs" />
     <Compile Include="Gui\List.cs" />
     <Compile Include="Gui\ListItem.cs" />
+    <Compile Include="Gui\StringExtensions.cs" />
     <Compile Include="Gui\Viewport.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

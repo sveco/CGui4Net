@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace CGui.Gui
 {
@@ -16,6 +17,7 @@ namespace CGui.Gui
         public IList<ListItem<T>> ListItems;
         public int SelectedItemIndex = 0;
         public int SelectionPos = 0;
+        private Action<ListItem<T>, List<T>> processItem;
 
         public int TotalItems {get { return ListItems.Count();}}
 
@@ -26,11 +28,14 @@ namespace CGui.Gui
         public delegate bool OnItemKey(ConsoleKey key, ListItem<T> selectedItem);
         public event OnItemKey OnItemKeyHandler;
 
-        public delegate bool OnItemChanged(ListItem<T> selectedItem);
-        public event OnItemChanged OnItemChangedHandler;
-
         public List(IList<ListItem<T>> items) {
             this.ListItems = items;
+        }
+
+        public List(IList<ListItem<T>> items, Action<ListItem<T>, List<T>> processItem)
+        {
+            this.ListItems = items;
+            this.processItem = processItem;
         }
 
         public override void Show() {
@@ -41,6 +46,14 @@ namespace CGui.Gui
 
         private void Select()
         {
+
+            if (processItem != null)
+            {
+                Parallel.ForEach<ListItem<T>>(this.ListItems, (item) => {
+                    processItem.Invoke(item, this);
+                 });
+            }
+
             bool cont = true;
             do
             {
@@ -106,6 +119,13 @@ namespace CGui.Gui
             for (int i = 0; i < Math.Min(MaxItems, TotalItems - Offset); i++)
             {
                 RenderItem(i);
+            }
+        }
+
+        public void UpdateItem(int Index) {
+            if (Index >= Offset && Index < Offset + MaxItems)
+            {
+                RenderItem(Index);
             }
         }
 

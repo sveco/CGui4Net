@@ -12,22 +12,22 @@ namespace CGuiDemo
     class Program
     {
         static ListItem<string>[] list = {
-            new ListItem<string>() { DisplayText = "Test 1", Index = 1, Value = "Test Value 1" },
+            new ListItem<string>() { DisplayText = "Test 1", Index = 0, Value = "Test Value 1" },
             new ListItem<string>() { DisplayText = "Test 2", Index = 1, Value = "Test Value 2" },
-            new ListItem<string>() { DisplayText = "Test 3", Index = 1, Value = "Test Value 3" },
-            new ListItem<string>() { DisplayText = "Test 4", Index = 1, Value = "Test Value 4" },
-            new ListItem<string>() { DisplayText = "Test 5", Index = 1, Value = "Test Value 5" },
-            new ListItem<string>() { DisplayText = "Test 6", Index = 1, Value = "Test Value 6" },
-            new ListItem<string>() { DisplayText = "Test 7", Index = 1, Value = "Test Value 7" },
-            new ListItem<string>() { DisplayText = "Test 8", Index = 1, Value = "Test Value 8" },
-            new ListItem<string>() { DisplayText = "Test 9", Index = 1, Value = "Test Value 9" },
-            new ListItem<string>() { DisplayText = "Test 10", Index = 1, Value = "Test Value 10" },
-            new ListItem<string>() { DisplayText = "Test 11", Index = 1, Value = "Test Value 11" },
-            new ListItem<string>() { DisplayText = "Test 12", Index = 1, Value = "Test Value 12" },
-            new ListItem<string>() { DisplayText = "Test 13", Index = 1, Value = "Test Value 13" },
-            new ListItem<string>() { DisplayText = "Test 14", Index = 1, Value = "Test Value 14" },
-            new ListItem<string>() { DisplayText = "Test 15", Index = 1, Value = "Test Value 15" },
-            new ListItem<string>() { DisplayText = "Test 16", Index = 1, Value = "Test Value 16" }
+            new ListItem<string>() { DisplayText = "Test 3", Index = 2, Value = "Test Value 3" },
+            new ListItem<string>() { DisplayText = "Test 4", Index = 3, Value = "Test Value 4" },
+            new ListItem<string>() { DisplayText = "Test 5", Index = 4, Value = "Test Value 5" },
+            new ListItem<string>() { DisplayText = "Test 6", Index = 5, Value = "Test Value 6" },
+            new ListItem<string>() { DisplayText = "Test 7", Index = 6, Value = "Test Value 7" },
+            new ListItem<string>() { DisplayText = "Test 8", Index = 7, Value = "Test Value 8" },
+            new ListItem<string>() { DisplayText = "Test 9", Index = 8, Value = "Test Value 9" },
+            new ListItem<string>() { DisplayText = "Test 10", Index = 9, Value = "Test Value 10" },
+            new ListItem<string>() { DisplayText = "Test 11", Index = 10, Value = "Test Value 11" },
+            new ListItem<string>() { DisplayText = "Test 12", Index = 11, Value = "Test Value 12" },
+            new ListItem<string>() { DisplayText = "Test 13", Index = 12, Value = "Test Value 13" },
+            new ListItem<string>() { DisplayText = "Test 14", Index = 13, Value = "Test Value 14" },
+            new ListItem<string>() { DisplayText = "Test 15", Index = 14, Value = "Test Value 15" },
+            new ListItem<string>() { DisplayText = "Test 16", Index = 15, Value = "Test Value 16" }
         };
 
         public static void HandleKey(ListItem<string> item)
@@ -50,7 +50,16 @@ namespace CGuiDemo
             f.PadChar = '=';
             f.Show();
 
-            var l = new CGui.Gui.List<string>(list);
+            void processItem(ListItem<string> i, CGui.Gui.List<string> parent)
+            {
+                var rnd = new Random().Next(5000);
+                System.Threading.Thread.Sleep(rnd);
+                i.DisplayText += " - Updated";
+                parent.UpdateItem(i.Index);
+            }
+
+            var l = new CGui.Gui.List<string>(list, processItem);
+
             l.OnItemKeyHandler += List_OnItemKeyHandler;
             l.Left = 0;
             l.Top = 2;

@@ -13,13 +13,13 @@ namespace CGui.Gui.Primitives
             get { return _displayText; }
             set {
                 _displayText = value;
-                Show();
             }
         }
         int _top;
         public override int Top { get => _top; set => _top = value; }
         public override int Left { get => 0; set {}}
         public override int Width { get => Console.WindowWidth; set {}}
+        public override int Height { get => 1; set { } }
 
         protected void RenderElement()
         {
@@ -46,11 +46,18 @@ namespace CGui.Gui.Primitives
             }
             return result;
         }
+
         public override void Show()
         {
             Console.CursorVisible = false;
+            var f = Console.ForegroundColor;
+            var b = Console.BackgroundColor;
+            Console.ForegroundColor = this.ForegroundColor;
+            Console.BackgroundColor = this.BackgroundColor;
             this.RenderElement();
             Console.SetCursorPosition(0, 0);
+            Console.ForegroundColor = f;
+            Console.BackgroundColor = b;
         }
     }
 }

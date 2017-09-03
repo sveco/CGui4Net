@@ -8,31 +8,31 @@ using System.Threading.Tasks;
 
 namespace CGui.Gui
 {
-    public class List<T> : GuiElement
+    public class Picklist<T> : GuiElement
     {
-        public int MaxItems = 8;
         public int Offset = 0;
         public bool ShowScrollbar = false;
         private string ScrollBarChar = "█";
         public IList<ListItem<T>> ListItems;
         public int SelectedItemIndex = 0;
         public int SelectionPos = 0;
-        private Action<ListItem<T>, List<T>> processItem;
+        private Action<ListItem<T>, Picklist<T>> processItem;
 
         public int TotalItems {get { return ListItems.Count();}}
 
         public override int Top { get; set; }
         public override int Left { get; set; }
         public override int Width { get; set; }
+        public override int Height { get; set; }
 
-        public delegate bool OnItemKey(ConsoleKey key, ListItem<T> selectedItem);
+        public delegate bool OnItemKey(ConsoleKeyInfo key, ListItem<T> selectedItem, Picklist<T> parent);
         public event OnItemKey OnItemKeyHandler;
 
-        public List(IList<ListItem<T>> items) {
-            this.ListItems = items;
+        public Picklist(IList<ListItem<T>> items) {
+            this.ListItems = items.OrderBy(x => x.Index).ToList();
         }
 
-        public List(IList<ListItem<T>> items, Action<ListItem<T>, List<T>> processItem)
+        public Picklist(IList<ListItem<T>> items, Action<ListItem<T>, Picklist<T>> processItem)
         {
             this.ListItems = items;
             this.processItem = processItem;
@@ -77,10 +77,10 @@ namespace CGui.Gui
 
                         break;
                     case ConsoleKey.DownArrow:
-                        if (SelectedItemIndex + 1 < TotalItems) { SelectedItemIndex++; }
-                        if (SelectionPos + 1 >= MaxItems)
+                        if (SelectedItemIndex + 1 < TotalItems) { SelectedItemIndex++; } else { break; }
+                        if (SelectionPos + 1 >= Height)
                         {
-                            if (Offset + MaxItems < TotalItems) { Offset++; }
+                            if (Offset + Height < TotalItems) { Offset++; }
                             RenderControl();
                         }
                         else {
@@ -90,8 +90,47 @@ namespace CGui.Gui
                         }
                         break;
 
+                    case ConsoleKey.PageUp:
+                        if (SelectedItemIndex > 10) { SelectedItemIndex -= 10; } else { SelectedItemIndex = 0; }
+                        if (SelectionPos - 10 < 0)
+                        {
+                            SelectionPos = 0;
+                            if (Offset >= 10)
+                            {
+                                Offset -= 10;
+
+                            }
+                            else { Offset = 0; }
+                            RenderControl();
+                        }
+                        else
+                        {
+                            SelectionPos -= 10;
+                            RenderItem(prevItem);
+                            RenderItem(SelectionPos);
+                        }
+                        break;
+
+                    case ConsoleKey.PageDown:
+                        if (SelectedItemIndex + 10 < TotalItems) { SelectedItemIndex += 10; } else { SelectedItemIndex = TotalItems - 1; }
+                        if (SelectionPos + 10 > Height)
+                        {
+                            SelectionPos = Height - 1;
+                            if (Offset + Height < TotalItems) { Offset += 10; }
+                            else {
+                                Offset = TotalItems - Height;  }
+                            RenderControl();
+                        }
+                        else
+                        {
+                            SelectionPos += 10;
+                            RenderItem(prevItem);
+                            RenderItem(SelectionPos);
+                        }
+                        break;
+
                     default:
-                        cont = OnItemKeyHandler(key.Key, this.ListItems[SelectedItemIndex]);
+                        cont = OnItemKeyHandler(key, this.ListItems[SelectedItemIndex], this);
                         break;
                     
                 }
@@ -99,8 +138,14 @@ namespace CGui.Gui
             } while (cont);
         }
 
+        public new void Refresh()
+        {
+            RenderControl();
+        }
+
         protected void RenderItem(int Index)
         {
+            if (Index >= ListItems.Count()) return;
             Console.SetCursorPosition(this.Left, this.Top + Index);
             if (SelectionPos == Index)
             {
@@ -116,14 +161,16 @@ namespace CGui.Gui
         }
 
         private void RenderControl() {
-            for (int i = 0; i < Math.Min(MaxItems, TotalItems - Offset); i++)
+            Console.ForegroundColor = this.ForegroundColor;
+            Console.BackgroundColor = this.BackgroundColor;
+            for (int i = 0; i < Math.Min(Height, TotalItems - Offset); i++)
             {
                 RenderItem(i);
             }
         }
 
         public void UpdateItem(int Index) {
-            if (Index >= Offset && Index < Offset + MaxItems)
+            if (Index >= Offset && Index < Offset + Height)
             {
                 RenderItem(Index);
             }
@@ -147,10 +194,10 @@ namespace CGui.Gui
                     break;
             }
 
-            if (ShowScrollbar && MaxItems < TotalItems)
+            if (ShowScrollbar && Height < TotalItems)
             {
-                var ratio = (double)MaxItems / TotalItems;
-                int size = (int)Math.Ceiling((double)MaxItems * ratio);
+                var ratio = (double)Height / TotalItems;
+                int size = (int)Math.Ceiling((double)Height * ratio);
                 var top = Math.Ceiling(Offset * ratio);
                 Debug.WriteLine(top);
 

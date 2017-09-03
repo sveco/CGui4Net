@@ -48,11 +48,12 @@
     <Compile Include="Gui\IUpdatable.cs" />
     <Compile Include="Gui\Primitives\GuiElement.cs" />
     <Compile Include="Gui\Header.cs" />
-    <Compile Include="Gui\List.cs" />
+    <Compile Include="Gui\Picklist.cs" />
     <Compile Include="Gui\Primitives\ListItem.cs" />
     <Compile Include="Gui\Footer.cs" />
     <Compile Include="Gui\Primitives\Line.cs" />
     <Compile Include="Gui\StringExtensions.cs" />
+    <Compile Include="Gui\TextArea.cs" />
     <Compile Include="Gui\Viewport.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

@@ -22,6 +22,7 @@ namespace CGui.Gui
         public static IEnumerable<string> Split(this string str, int chunkSize)
         {
             char[] splitChars = new char[] { ' ', '-', '\t' };
+            str = str.Replace('\t', ' ');
 
             if (chunkSize < 1) throw new ArgumentException("Chunk size must be > 0.", "chunkSize");
             if (str.Length <= chunkSize) { return str.Split(new string[] { Environment.NewLine, "\n" }, StringSplitOptions.RemoveEmptyEntries).ToList(); }
@@ -58,8 +59,7 @@ namespace CGui.Gui
                 else sb.Append(Environment.NewLine); // Empty line
             }
             return sb.ToString()
-                .Split(new string[] { Environment.NewLine, "\n" }, StringSplitOptions.RemoveEmptyEntries)
-                .Select(x => x.Replace("\t", " "));
+                .Split(new string[] { Environment.NewLine, "\n" }, StringSplitOptions.RemoveEmptyEntries);
         }
 
         private static int BreakLine(string text, int pos, int max)

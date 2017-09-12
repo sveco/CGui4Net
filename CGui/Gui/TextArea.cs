@@ -10,6 +10,9 @@ namespace CGui.Gui
 {
     public class TextArea : GuiElement
     {
+        public bool ShowScrollbar = false;
+        private string ScrollBarChar = "█";
+
         public override int Top { get; set; }
         public override int Left { get; set; }
         private int _width = 10;
@@ -46,13 +49,7 @@ namespace CGui.Gui
             _lines = new List<string>();
             if (!string.IsNullOrWhiteSpace(Content))
             {
-                _lines = Content.Split(this.Width).ToList();
-            //    var paragraphs = Content.Split(new string[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
-            //    foreach (var paragraph in paragraphs)
-            //    {
-            //        var lines = paragraph.Split(this.Width);
-            //        _lines = _lines.Concat(lines).ToList();
-            //    }
+                _lines = Content.Split(this.Width - 2).ToList();
             }
 
             return _lines;
@@ -67,19 +64,41 @@ namespace CGui.Gui
         protected string GetDisplayText(int index)
         {
             string result = _lines[index];
+            int desiredWith = (ShowScrollbar && Height < LinesCount) ? this.Width - 1 : this.Width;
+
             switch (this.TextAlignment)
             {
                 case TextAlignment.Left:
-                    result = result.PadRight(this.Width, this.PadChar);
+                    result = result.PadRight(desiredWith, this.PadChar);
                     break;
 
                 case TextAlignment.Right:
-                    result = result.PadLeft(this.Width, this.PadChar);
+                    result = result.PadLeft(desiredWith, this.PadChar);
                     break;
 
                 case TextAlignment.Center:
-                    result = result.PadBoth(this.Width, this.PadChar);
+                    result = result.PadBoth(desiredWith, this.PadChar);
                     break;
+            }
+
+            if (ShowScrollbar && Height < LinesCount)
+            {
+                var ratio = (double)Height / LinesCount;
+                int size = (int)Math.Ceiling((double)Height * ratio);
+                var top = Math.Ceiling(Offset * ratio);
+                Debug.WriteLine(top);
+
+                bool show = index - Offset > top
+                    && index - Offset < size + top;
+
+                if (show)
+                {
+                    result = result + ScrollBarChar;
+                }
+                else
+                {
+                    result = result + this.PadChar;
+                }
             }
             return result;
         }

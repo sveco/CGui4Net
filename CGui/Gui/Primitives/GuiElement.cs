@@ -34,5 +34,12 @@ namespace CGui.Gui.Primitives
 
         public TextAlignment TextAlignment = TextAlignment.Left;
         public char PadChar = ' ';
+        protected void ClearCurrentLine()
+        {
+            int currentLineCursor = Console.CursorTop;
+            Console.SetCursorPosition(0, Top);
+            Console.Write(new string(' ', Console.WindowWidth));
+            Console.SetCursorPosition(0, currentLineCursor);
+        }
     }
 }

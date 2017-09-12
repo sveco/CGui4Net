@@ -9,7 +9,7 @@ namespace CGui.Gui
 {
     public class Footer : Line
     {
-        public override int Top { get => Console.WindowHeight - 2; set { } }
+        public override int Top { get => Console.WindowHeight - 1; set { } }
         public Footer(string text)
         {
             DisplayText = text;

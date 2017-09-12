@@ -50,7 +50,7 @@ namespace CGuiDemo
             f.PadChar = '=';
             f.Show();
 
-            void processItem(ListItem<string> i, CGui.Gui.List<string> parent)
+            void processItem(ListItem<string> i, CGui.Gui.Picklist<string> parent)
             {
                 var rnd = new Random().Next(5000);
                 System.Threading.Thread.Sleep(rnd);
@@ -58,7 +58,7 @@ namespace CGuiDemo
                 parent.UpdateItem(i.Index);
             }
 
-            var l = new CGui.Gui.List<string>(list, processItem);
+            var l = new CGui.Gui.Picklist<string>(list, processItem);
 
             l.OnItemKeyHandler += List_OnItemKeyHandler;
             l.Left = 0;
@@ -69,11 +69,9 @@ namespace CGuiDemo
             l.Show();
         }
 
-
-
-        private static bool List_OnItemKeyHandler(ConsoleKey key, ListItem<string> selectedItem)
+        private static bool List_OnItemKeyHandler(ConsoleKeyInfo key, ListItem<string> selectedItem, Picklist<string> parent)
         {
-            if (key == ConsoleKey.Enter)
+            if (key.Key == ConsoleKey.Enter)
             {
                 //Debug.WriteLine(selectedItem.Value);
                 if (f != null)
@@ -81,7 +79,7 @@ namespace CGuiDemo
                     f.DisplayText = "Selected: " + selectedItem.Value;
                 }
             }
-            if (key == ConsoleKey.Escape)
+            if (key.Key == ConsoleKey.Escape)
             {
                 return false;
             }

@@ -13,29 +13,46 @@ namespace CGui.Gui
         public int Offset = 0;
         public bool ShowScrollbar = false;
         private string ScrollBarChar = "█";
-        public IList<ListItem<T>> ListItems;
+        private IList<ListItem<T>> listItems = new List<ListItem<T>>();
         public int SelectedItemIndex = 0;
         public int SelectionPos = 0;
-        private Action<ListItem<T>, Picklist<T>> processItem;
-
+        private Action<ListItem<T>, Picklist<T>> ProcessItem;
         public int TotalItems {get { return ListItems.Count();}}
 
         public override int Top { get; set; }
         public override int Left { get; set; }
         public override int Width { get; set; }
         public override int Height { get; set; }
+        public IList<ListItem<T>> ListItems { get => listItems; }
 
         public delegate bool OnItemKey(ConsoleKeyInfo key, ListItem<T> selectedItem, Picklist<T> parent);
         public event OnItemKey OnItemKeyHandler;
+        private void ListItem_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == "DisplayText")
+            {
+                UpdateItem(((ListItem<T>)sender).Index + Offset);
+            }
+        }
 
         public Picklist(IList<ListItem<T>> items) {
-            this.ListItems = items.OrderBy(x => x.Index).ToList();
+            ListItems.Clear();
+            foreach (var i in items.OrderBy(x => x.Index).ToList())
+            {
+                i.PropertyChanged += ListItem_PropertyChanged;
+                ListItems.Add(i);
+            }
         }
 
         public Picklist(IList<ListItem<T>> items, Action<ListItem<T>, Picklist<T>> processItem)
         {
-            this.ListItems = items;
-            this.processItem = processItem;
+            ListItems.Clear();
+            foreach (var i in items.OrderBy(x => x.Index).ToList())
+            {
+                i.PropertyChanged += ListItem_PropertyChanged;
+                ListItems.Add(i);
+            }
+            this.ProcessItem = processItem;
         }
 
         public override void Show() {
@@ -47,10 +64,10 @@ namespace CGui.Gui
         private void Select()
         {
 
-            if (processItem != null)
+            if (ProcessItem != null)
             {
                 Parallel.ForEach<ListItem<T>>(this.ListItems, (item) => {
-                    processItem.Invoke(item, this);
+                    ProcessItem.Invoke(item, this);
                  });
             }
 
@@ -116,9 +133,10 @@ namespace CGui.Gui
                         if (SelectionPos + 10 > Height)
                         {
                             SelectionPos = Height - 1;
-                            if (Offset + Height < TotalItems) { Offset += 10; }
+                            if (Offset + 10 + Height < TotalItems) { Offset += 10; }
                             else {
-                                Offset = TotalItems - Height;  }
+                                Offset = TotalItems - Height;
+                            }
                             RenderControl();
                         }
                         else
@@ -143,20 +161,25 @@ namespace CGui.Gui
             RenderControl();
         }
 
+        Object thisLock = new Object();
         protected void RenderItem(int Index)
         {
-            if (Index >= ListItems.Count()) return;
-            Console.SetCursorPosition(this.Left, this.Top + Index);
-            if (SelectionPos == Index)
+
+            lock (thisLock)
             {
-                Console.ForegroundColor = this.SelectedForegroundColor;
-                Console.BackgroundColor = this.SelectedBackgroundColor;
-            }
-            Console.WriteLine(GetDisplayText(Index + Offset));
-            if (SelectionPos == Index)
-            {
-                Console.ForegroundColor = this.ForegroundColor;
-                Console.BackgroundColor = this.BackgroundColor;
+                if (Index >= ListItems.Count()) return;
+                Console.SetCursorPosition(this.Left, this.Top + Index);
+                if (SelectionPos == Index)
+                {
+                    Console.ForegroundColor = this.SelectedForegroundColor;
+                    Console.BackgroundColor = this.SelectedBackgroundColor;
+                }
+                Console.WriteLine(GetDisplayText(Index + Offset));
+                if (SelectionPos == Index)
+                {
+                    Console.ForegroundColor = this.ForegroundColor;
+                    Console.BackgroundColor = this.BackgroundColor;
+                }
             }
         }
 
@@ -199,7 +222,6 @@ namespace CGui.Gui
                 var ratio = (double)Height / TotalItems;
                 int size = (int)Math.Ceiling((double)Height * ratio);
                 var top = Math.Ceiling(Offset * ratio);
-                Debug.WriteLine(top);
 
                 bool show = index - Offset > top
                     && index - Offset < size + top;
@@ -214,6 +236,16 @@ namespace CGui.Gui
             }
 
             return result;
+        }
+
+        public void UpdateList(IEnumerable<ListItem<T>> items)
+        {
+            ListItems.Clear();
+            foreach (var i in items)
+            {
+                i.PropertyChanged += ListItem_PropertyChanged;
+                ListItems.Add(i);
+            }
         }
     }
 }

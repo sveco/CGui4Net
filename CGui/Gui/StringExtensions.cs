@@ -26,7 +26,7 @@ namespace CGui.Gui
 
 			char[] splitChars = new char[] { ' ' };
 
-			if (str.Length <= chunkSize) { return str.Split(new string[] { Environment.NewLine, "\n" }, StringSplitOptions.RemoveEmptyEntries).ToList(); }
+			if (str.Length <= chunkSize) { return str.Split(new string[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries).ToList(); }
 			StringBuilder sb = new StringBuilder();
 
 			var paragraphs = str.Split(new string[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries).ToList();
@@ -41,11 +41,11 @@ namespace CGui.Gui
 						currentLine += " " + word;
 					}
 					else {
-						sb.AppendLine(currentLine.Trim().PadRight(chunkSize - currentLine.VisibleLength()));
+						sb.AppendLine(currentLine.TrimEnd().PadRight(chunkSize + (currentLine.Length - currentLine.VisibleLength())));
 						currentLine = "";
 					}
 				}
-				sb.AppendLine(currentLine.PadRight(chunkSize - currentLine.VisibleLength()));
+				sb.AppendLine(currentLine.TrimEnd().PadRight(chunkSize + (currentLine.Length - currentLine.VisibleLength())));
 			}
 
 			return sb.ToString()
@@ -119,7 +119,8 @@ namespace CGui.Gui
 			//var stripedAnsi = Regex.Replace(str, @"\e\[(\d+;)*(\d+)?[ABCDHJKfmsu]", "");
 			var stripedAnsi = Regex.Replace(str, @"\x1b\[(\d+;)*(\d+)?[ABCDHJKfmsu]", "");
 			var stripedControl = Regex.Replace(stripedAnsi, @"[^\x20-\x7F]", "");
-			return stripedControl.Length;
+
+			return stripedControl.TrimEnd().Length;
 		}
 	}
 }

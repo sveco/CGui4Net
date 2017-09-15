@@ -15,13 +15,16 @@ namespace CGui.Gui
 
         public override int Top { get; set; }
         public override int Left { get; set; }
-        private int _width = 10;
+        private int _width = 0;
         public override int Width {
             get { return _width; }
             set
             {
                 _width = value;
-                parseText();
+                if (value > 0)
+                {
+                    parseText();
+                }
             }
         }
 
@@ -38,7 +41,10 @@ namespace CGui.Gui
             get { return _content; }
             set {
                 _content = value;
-                parseText();
+                if (_width > 0)
+                {
+                    parseText();
+                }
             }
         }
 
@@ -49,7 +55,7 @@ namespace CGui.Gui
             _lines = new List<string>();
             if (!string.IsNullOrWhiteSpace(Content))
             {
-                _lines = Content.Split(this.Width - 2).ToList();
+                _lines = Content.Split(this.Width - 5).ToList();
             }
 
             return _lines;

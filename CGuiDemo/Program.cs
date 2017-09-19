@@ -19,7 +19,7 @@ namespace CGuiDemo
             new ListItem<string>() { DisplayText = "Test 5", Index = 4, Value = "Test Value 5" },
             new ListItem<string>() { DisplayText = "Test 6", Index = 5, Value = "Test Value 6" },
             new ListItem<string>() { DisplayText = "Test 7", Index = 6, Value = "Test Value 7" },
-            new ListItem<string>() { DisplayText = "Test 8", Index = 7, Value = "Test Value 8" },
+            new ListItem<string>() { DisplayText = "Test 8 Loooooooooooooooooooooooooooooong text", Index = 7, Value = "Test Value 8" },
             new ListItem<string>() { DisplayText = "Test 9", Index = 8, Value = "Test Value 9" },
             new ListItem<string>() { DisplayText = "Test 10", Index = 9, Value = "Test Value 10" },
             new ListItem<string>() { DisplayText = "Test 11", Index = 10, Value = "Test Value 11" },
@@ -58,14 +58,16 @@ namespace CGuiDemo
                 parent.UpdateItem(i.Index);
             }
 
-            var l = new CGui.Gui.Picklist<string>(list, processItem);
-
+            var l = new CGui.Gui.Picklist<string>(list, /* processItem*/ null)
+            {
+                Left = 0,
+                Top = 2,
+                Width = 40,
+                Height = 6,
+                ShowScrollbar = true,
+                TextAlignment = TextAlignment.Left,
+            };
             l.OnItemKeyHandler += List_OnItemKeyHandler;
-            l.Left = 0;
-            l.Top = 2;
-            l.Width = 40;
-            l.TextAlignment = TextAlignment.Left;
-            l.ShowScrollbar = false;
             l.Show();
         }
 
@@ -73,17 +75,14 @@ namespace CGuiDemo
         {
             if (key.Key == ConsoleKey.Enter)
             {
-                //Debug.WriteLine(selectedItem.Value);
-                if (f != null)
-                {
-                    f.DisplayText = "Selected: " + selectedItem.Value;
-                }
+                Debug.WriteLine(selectedItem.Value);
             }
             if (key.Key == ConsoleKey.Escape)
             {
+                ///returning false exits the keyboard loop
                 return false;
             }
-
+            ///return true to continue capturing keyboard input
             return true;
         }
     }

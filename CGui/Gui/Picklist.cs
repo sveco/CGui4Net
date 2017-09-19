@@ -11,7 +11,7 @@ namespace CGui.Gui
     public class Picklist<T> : GuiElement
     {
         public int Offset = 0;
-        public bool ShowScrollbar = false;
+        public bool ShowScrollbar { get; set; }
         private string ScrollBarChar = "█";
         private IList<ListItem<T>> listItems = new List<ListItem<T>>();
         public int SelectedItemIndex = 0;
@@ -132,9 +132,11 @@ namespace CGui.Gui
                         if (SelectedItemIndex + 10 < TotalItems) { SelectedItemIndex += 10; } else { SelectedItemIndex = TotalItems - 1; }
                         if (SelectionPos + 10 > Height)
                         {
+                            var prevSel = SelectionPos;
                             SelectionPos = Height - 1;
-                            if (Offset + 10 + Height < TotalItems) { Offset += 10; }
-                            else {
+                            Offset += 10 - (SelectionPos - prevSel);
+
+                            if (Offset > TotalItems - Height) {
                                 Offset = TotalItems - Height;
                             }
                             RenderControl();
@@ -173,7 +175,7 @@ namespace CGui.Gui
                     Console.ForegroundColor = this.SelectedForegroundColor;
                     Console.BackgroundColor = this.SelectedBackgroundColor;
                 }
-                Console.WriteLine(GetDisplayText(Index + Offset));
+                ConsoleWrapper.WriteLine(GetDisplayText(Index + Offset));
                 if (SelectionPos == Index)
                 {
                     Console.ForegroundColor = this.ForegroundColor;
@@ -202,6 +204,7 @@ namespace CGui.Gui
         protected string GetDisplayText(int index)
         {
             string result = ListItems[index].DisplayText;
+
             switch (this.TextAlignment)
             {
                 case TextAlignment.Left:
@@ -215,6 +218,18 @@ namespace CGui.Gui
                 case TextAlignment.Center:
                     result = result.PadBoth(this.Width, this.PadChar);
                     break;
+            }
+
+            if (result.Length > this.Width)
+            {
+                if (result.Length > 3)
+                {
+                    result = result.Substring(0, this.Width - 3) + "...";
+                }
+                else
+                {
+                    result = result.Substring(0, this.Width);
+                }
             }
 
             if (ShowScrollbar && Height < TotalItems)

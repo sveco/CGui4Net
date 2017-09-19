@@ -13,6 +13,8 @@ namespace CGui.Gui.Primitives
     }
     public abstract class GuiElement
     {
+        private static readonly object lockObject = new object();
+
         public ConsoleColor ForegroundColor = Console.ForegroundColor;
         public ConsoleColor BackgroundColor = Console.BackgroundColor;
 
@@ -36,10 +38,13 @@ namespace CGui.Gui.Primitives
         public char PadChar = ' ';
         protected void ClearCurrentLine()
         {
-            int currentLineCursor = Console.CursorTop;
-            Console.SetCursorPosition(0, Top);
-            Console.Write(new string(' ', Console.WindowWidth));
-            Console.SetCursorPosition(0, currentLineCursor);
+            lock (lockObject)
+            {
+                int currentLineCursor = Console.CursorTop;
+                Console.SetCursorPosition(0, Top);
+                Console.Write(new string(' ', Console.WindowWidth));
+                Console.SetCursorPosition(0, currentLineCursor);
+            }
         }
     }
 }

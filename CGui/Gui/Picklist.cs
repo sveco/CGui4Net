@@ -164,7 +164,6 @@ namespace CGui.Gui
         Object thisLock = new Object();
         protected void RenderItem(int Index)
         {
-
             lock (thisLock)
             {
                 if (Index >= ListItems.Count()) return;
@@ -183,7 +182,8 @@ namespace CGui.Gui
             }
         }
 
-        private void RenderControl() {
+        private void RenderControl()
+        {
             Console.ForegroundColor = this.ForegroundColor;
             Console.BackgroundColor = this.BackgroundColor;
             for (int i = 0; i < Math.Min(Height, TotalItems - Offset); i++)

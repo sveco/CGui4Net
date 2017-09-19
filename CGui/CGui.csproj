@@ -45,8 +45,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Gui\ConsoleWrapper.cs" />
     <Compile Include="Gui\Input.cs" />
-    <Compile Include="Gui\IUpdatable.cs" />
     <Compile Include="Gui\Primitives\GuiElement.cs" />
     <Compile Include="Gui\Header.cs" />
     <Compile Include="Gui\Picklist.cs" />
@@ -63,4 +63,7 @@
     <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>copy "$(TargetPath)" "c:\Users\janko.svetlik\Documents\Visual Studio 2017\Projects\CRR\packages\Cgui.1.0.0.1\lib\net40\"</PostBuildEvent>
+  </PropertyGroup>
 </Project>

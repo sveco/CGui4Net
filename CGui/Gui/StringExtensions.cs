@@ -41,86 +41,41 @@ namespace CGui.Gui
 						currentLine += " " + word;
 					}
 					else {
-						sb.AppendLine(currentLine.TrimEnd().PadRight(chunkSize + (currentLine.Length - currentLine.VisibleLength())));
-						currentLine = "";
+            var a = currentLine.Length != currentLine.VisibleLength() ? 4 : 0;
+            sb.AppendLine(currentLine.PadRight(chunkSize + (currentLine.Length - currentLine.VisibleLength() + a)));
+						currentLine = word;
 					}
 				}
-				sb.AppendLine(currentLine.TrimEnd().PadRight(chunkSize + (currentLine.Length - currentLine.VisibleLength())));
+
+        var x = currentLine.Length != currentLine.VisibleLength() ? 4 : 0;
+        var line = currentLine.PadRight(chunkSize + (currentLine.Length - currentLine.VisibleLength() + x));
+        sb.AppendLine(line);
 			}
 
 			return sb.ToString()
 				.Split(new string[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
 		}
 
-		public static IEnumerable<string> Split2(this string str, int chunkSize)
-		{
-			char[] splitChars = new char[] { ' ', '-', '\t' };
-			str = str.Replace('\t', ' ');
-
-			if (chunkSize < 1) throw new ArgumentException("Chunk size must be > 0.", "chunkSize");
-			if (str.Length <= chunkSize) { return str.Split(new string[] { Environment.NewLine, "\n" }, StringSplitOptions.RemoveEmptyEntries).ToList(); }
-			int pos, next;
-			StringBuilder sb = new StringBuilder();
-
-			// Parse each line of text
-			for (pos = 0; pos < str.Length; pos = next)
-			{
-				// Find end of line
-				int eol = str.IndexOf(Environment.NewLine, pos);
-				if (eol == -1)
-					next = eol = str.Length;
-				else
-					next = eol + Environment.NewLine.Length;
-
-				// Copy this line of text, breaking into smaller lines as needed
-				if (eol > pos)
-				{
-					do
-					{
-						int len = eol - pos;
-						if (len > chunkSize)
-							len = BreakLine(str, pos, chunkSize);
-						sb.Append(str, pos, len);
-						sb.Append(Environment.NewLine);
-
-						// Trim whitespace following break
-						pos += len;
-						while (pos < eol && Char.IsWhiteSpace(str[pos]))
-							pos++;
-					} while (eol > pos);
-				}
-				else sb.Append(Environment.NewLine); // Empty line
-			}
-			return sb.ToString()
-					.Split(new string[] { Environment.NewLine, "\n" }, StringSplitOptions.RemoveEmptyEntries);
-		}
-
-		private static int BreakLine(string text, int pos, int max)
-		{
-			// Find last whitespace in line
-			int i = max;
-			while (i >= 0 && !Char.IsWhiteSpace(text[pos + i]))
-				i--;
-
-			// If no whitespace found, break at maximum length
-			if (i < 0)
-				return max;
-
-			// Find start of whitespace
-			while (i >= 0 && Char.IsWhiteSpace(text[pos + i]))
-				i--;
-
-			// Return length of text before whitespace
-			return i + 1;
-		}
-
 		public static int VisibleLength(this string str)
 		{
-			//var stripedAnsi = Regex.Replace(str, @"\e\[(\d+;)*(\d+)?[ABCDHJKfmsu]", "");
-			var stripedAnsi = Regex.Replace(str, @"\x1b\[(\d+;)*(\d+)?[ABCDHJKfmsu]", "");
-			var stripedControl = Regex.Replace(stripedAnsi, @"[^\x20-\x7F]", "");
+        var stripedControl = Regex.Replace(str, @"\p{C}\[([fb]?)\:?(\w+)\]", "");
+        //var stripedAnsi = Regex.Replace(stripedControl, @"\p{C}\[(\d+;)*(\d+)?[ABCDHJKfmsu]", "");
 
-			return stripedControl.TrimEnd().Length;
+
+			return stripedControl.Length;
 		}
-	}
+
+    public static ConsoleColor GetColor(this string color)
+    {
+        ConsoleColor result = new ConsoleColor();
+        if (Enum.TryParse<ConsoleColor>(color, out result))
+        {
+            return result;
+        }
+        else
+        {
+            throw new ArgumentException("Unknow color name, see https://msdn.microsoft.com/en-us/library/system.consolecolor(v=vs.110).aspx for valid color names.");
+        }
+    }
+  }
 }

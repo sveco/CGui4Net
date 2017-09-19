@@ -3,13 +3,13 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace CGui.Gui
 {
     public class TextArea : GuiElement
     {
+        private static readonly object lockObject = new object();
+
         public bool ShowScrollbar = false;
         private string ScrollBarChar = "█";
 
@@ -110,10 +110,14 @@ namespace CGui.Gui
         }
 
         private void renderControl() {
-            for (int i = 0; i < Math.Min(Height, _lines.Count - Offset); i++)
+            lock (lockObject)
             {
-                Console.SetCursorPosition(Left, Top + i);
-                Console.WriteLine(GetDisplayText(Offset + i).Replace("\n", ""));
+                for (int i = 0; i < Math.Min(Height, _lines.Count - Offset); i++)
+                {
+                    Console.SetCursorPosition(Left, Top + i);
+                    //Console.WriteLine(GetDisplayText(Offset + i));
+                    ConsoleWrapper.WriteLine(GetDisplayText(Offset + i));
+                }
             }
         }
 

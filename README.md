@@ -13,11 +13,11 @@ Curently supported controls:
 - Footer
 - Input
 
-**Usage
+**Usage**
 
 This library was created to provide simple text based UI for console applications. I use it it my project [cfeed - console feed reader](https://github.com/sveco/CRR "cfeed on GitHub").
 
-***Picklist
+***Picklist***
 
 Picklist enables you to show scrollable list of items, and handle keyboard keys, wheter on selected item or globally. Example usage:
 

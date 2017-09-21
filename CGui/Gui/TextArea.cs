@@ -130,6 +130,11 @@ namespace CGui.Gui
             }
         }
 
+        public override void Refresh()
+        {
+            renderControl();
+        }
+
         private void inputLoop()
         {
             bool cont = true;

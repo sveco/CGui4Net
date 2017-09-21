@@ -59,5 +59,10 @@ namespace CGui.Gui.Primitives
             Console.ForegroundColor = f;
             Console.BackgroundColor = b;
         }
+
+        public override void Refresh()
+        {
+            Show();
+        }
     }
 }

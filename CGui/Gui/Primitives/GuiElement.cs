@@ -30,9 +30,7 @@ namespace CGui.Gui.Primitives
 
         public abstract void Show();
 
-        public void Refresh() {
-            Show();
-        }
+        public abstract void Refresh();
 
         public TextAlignment TextAlignment = TextAlignment.Left;
         public char PadChar = ' ';

@@ -23,7 +23,20 @@ namespace CGui.Gui
         public override int Left { get; set; }
         public override int Width { get; set; }
         public override int Height { get; set; }
-        public IList<ListItem<T>> ListItems { get => listItems; }
+        public IList<ListItem<T>> ListItems { get => listItems;
+            set
+            {
+                listItems.Clear();
+                if (value != null)
+                {
+                    foreach (var i in value.OrderBy(x => x.Index).ToList())
+                    {
+                        i.PropertyChanged += ListItem_PropertyChanged;
+                        ListItems.Add(i);
+                    }
+                }
+            }
+        }
 
         public delegate bool OnItemKey(ConsoleKeyInfo key, ListItem<T> selectedItem, Picklist<T> parent);
         public event OnItemKey OnItemKeyHandler;
@@ -37,10 +50,13 @@ namespace CGui.Gui
 
         public Picklist(IList<ListItem<T>> items) {
             ListItems.Clear();
-            foreach (var i in items.OrderBy(x => x.Index).ToList())
+            if (items != null)
             {
-                i.PropertyChanged += ListItem_PropertyChanged;
-                ListItems.Add(i);
+                foreach (var i in items.OrderBy(x => x.Index).ToList())
+                {
+                    i.PropertyChanged += ListItem_PropertyChanged;
+                    ListItems.Add(i);
+                }
             }
         }
 
@@ -59,6 +75,11 @@ namespace CGui.Gui
             Console.CursorVisible = false;
             this.RenderControl();
             this.Select();
+        }
+
+        public override void Refresh() {
+            Console.CursorVisible = false;
+            this.RenderControl();
         }
 
         private void Select()
@@ -156,11 +177,6 @@ namespace CGui.Gui
                 }
 
             } while (cont);
-        }
-
-        public new void Refresh()
-        {
-            RenderControl();
         }
 
         Object thisLock = new Object();

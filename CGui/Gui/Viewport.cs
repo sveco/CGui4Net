@@ -34,14 +34,26 @@ namespace CGui.Gui
 
         public Collection<GuiElement> Controls = new Collection<GuiElement>();
 
-        public override void Show()
+        private void Clear()
         {
             Console.Clear();
-            //Parallel.ForEach(Controls, (e) => { if (e != null) { e.Show(); } });
+        }
 
+        public override void Show()
+        {
+            Clear();
             foreach (var e in Controls)
             {
                 if (e != null) { e.Show(); }
+            }
+        }
+
+        public override void Refresh()
+        {
+            Clear();
+            foreach (var e in Controls)
+            {
+                if (e != null) { e.Refresh(); }
             }
         }
     }

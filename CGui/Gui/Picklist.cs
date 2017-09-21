@@ -72,6 +72,9 @@ namespace CGui.Gui
         }
 
         public override void Show() {
+
+            if (TotalItems == 0) { return; }
+
             Console.CursorVisible = false;
             this.RenderControl();
             this.Select();
@@ -84,7 +87,6 @@ namespace CGui.Gui
 
         private void Select()
         {
-
             if (ProcessItem != null)
             {
                 Parallel.ForEach<ListItem<T>>(this.ListItems, (item) => {
@@ -171,7 +173,11 @@ namespace CGui.Gui
                         break;
 
                     default:
-                        cont = OnItemKeyHandler(key, this.ListItems[SelectedItemIndex], this);
+                        if (SelectedItemIndex < this.TotalItems) {
+                            cont = OnItemKeyHandler(key, this.ListItems[SelectedItemIndex], this);
+                        } else {
+                            cont = false;
+                        }
                         break;
                     
                 }

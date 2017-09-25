@@ -91,10 +91,10 @@ namespace CGui.Gui
             {
                 var ratio = (double)Height / LinesCount;
                 int size = (int)Math.Ceiling((double)Height * ratio);
-                var top = Math.Ceiling(Offset * ratio);
-                Debug.WriteLine(top);
-
-                bool show = index - Offset > top
+                if (size < 1) { size = 1; }
+                var top = Math.Floor(Offset * ratio);
+   
+                bool show = index - Offset >= top
                     && index - Offset < size + top;
 
                 if (show)
@@ -115,7 +115,6 @@ namespace CGui.Gui
                 for (int i = 0; i < Math.Min(Height, _lines.Count - Offset); i++)
                 {
                     Console.SetCursorPosition(Left, Top + i);
-                    //Console.WriteLine(GetDisplayText(Offset + i));
                     ConsoleWrapper.WriteLine(GetDisplayText(Offset + i));
                 }
             }

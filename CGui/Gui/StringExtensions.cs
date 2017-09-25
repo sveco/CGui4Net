@@ -35,16 +35,30 @@ namespace CGui.Gui
 			{
 				var words = paragraph.Split(splitChars);
 				var currentLine = "";
+        bool firstWord = true;
 				foreach (var word in words)
 				{
 					if (currentLine.VisibleLength() + word.VisibleLength() < chunkSize)	{
-						currentLine += " " + word;
+						currentLine += (firstWord ? "" :" ") + word;
 					}
-					else {
+          else if (word.VisibleLength() > chunkSize)
+          {
+            currentLine += (firstWord ? "" : " ") + word.Substring(0, chunkSize - currentLine.VisibleLength()) + "...";
+          }
+          else {
             var a = currentLine.Length != currentLine.VisibleLength() ? 4 : 0;
             sb.AppendLine(currentLine.PadRight(chunkSize + (currentLine.Length - currentLine.VisibleLength() + a)));
-						currentLine = word;
+
+            if (word.VisibleLength() > chunkSize && chunkSize > 3)
+            {
+              currentLine = word.Substring(0, chunkSize - 3) + "...";
+            }
+            else
+            {
+              currentLine = word;
+            }
 					}
+          firstWord = false;
 				}
 
         var x = currentLine.Length != currentLine.VisibleLength() ? 4 : 0;

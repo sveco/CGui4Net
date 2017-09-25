@@ -5,6 +5,7 @@ using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Threading;
 
 namespace CGui.Gui
 {
@@ -89,9 +90,14 @@ namespace CGui.Gui
         {
             if (ProcessItem != null)
             {
-                Parallel.ForEach<ListItem<T>>(this.ListItems, (item) => {
-                    ProcessItem.Invoke(item, this);
-                 });
+                new Thread(() =>
+                {
+                    Thread.CurrentThread.IsBackground = true;
+                    /* run your code here */
+                    Parallel.ForEach<ListItem<T>>(this.ListItems, (item) => {
+                        ProcessItem.Invoke(item, this);
+                    });
+                }).Start();
             }
 
             bool cont = true;

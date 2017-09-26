@@ -159,20 +159,21 @@ namespace CGui.Gui
 
                     case ConsoleKey.PageDown:
                         if (SelectedItemIndex + 10 < TotalItems) { SelectedItemIndex += 10; } else { SelectedItemIndex = TotalItems - 1; }
-                        if (SelectionPos + 10 > Height)
+                        if (SelectionPos + 10 > Math.Min(Height, TotalItems - 1))
                         {
                             var prevSel = SelectionPos;
-                            SelectionPos = Height - 1;
+                            SelectionPos = Math.Min(Height - 1, TotalItems - 1);
                             Offset += 10 - (SelectionPos - prevSel);
 
                             if (Offset > TotalItems - Height) {
                                 Offset = TotalItems - Height;
+                                if (Offset < 0) { Offset = 0; }
                             }
                             RenderControl();
                         }
                         else
                         {
-                            SelectionPos += 10;
+                            SelectionPos = Math.Min(SelectionPos + 10, TotalItems - 1);
                             RenderItem(prevItem);
                             RenderItem(SelectionPos);
                         }

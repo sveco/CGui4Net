@@ -24,7 +24,7 @@ namespace CGui.Gui
         lock (Console.Lock)
         {
           Console.SetCursorPosition(this.DisplayText.Length + 1, Top);
-          var s = Console.ReadLine();
+          var s = Console.ReadLineWithCancel();
           this.ClearCurrentLine();
           return s;
         }

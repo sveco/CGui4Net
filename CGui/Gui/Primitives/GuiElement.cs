@@ -19,6 +19,8 @@ namespace CGui.Gui.Primitives
   {
     public static readonly ConsoleWrapper Console = ConsoleWrapper.Instance;
 
+    public bool IsDisplayed { get; set; }
+
     public ConsoleColor ForegroundColor = Console.ForegroundColor;
     public ConsoleColor BackgroundColor = Console.BackgroundColor;
 

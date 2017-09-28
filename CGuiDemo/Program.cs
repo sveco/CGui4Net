@@ -50,13 +50,13 @@ namespace CGuiDemo
             f.PadChar = '=';
             f.Show();
 
-            void processItem(ListItem<string> i, CGui.Gui.Picklist<string> parent)
-            {
-                var rnd = new Random().Next(5000);
-                System.Threading.Thread.Sleep(rnd);
-                i.DisplayText += " - Updated";
-                parent.UpdateItem(i.Index);
-            }
+            //void processItem(ListItem<string> i, CGui.Gui.Picklist<string> parent)
+            //{
+            //    var rnd = new Random().Next(5000);
+            //    System.Threading.Thread.Sleep(rnd);
+            //    i.DisplayText += " - Updated";
+            //    parent.UpdateItem(i.Index);
+            //}
 
             var l = new CGui.Gui.Picklist<string>(list, /* processItem*/ null)
             {

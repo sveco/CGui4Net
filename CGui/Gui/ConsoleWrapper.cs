@@ -20,6 +20,51 @@ namespace CGui.Gui
     #region Singleton implementation
     private static readonly ConsoleWrapper instance = new ConsoleWrapper();
 
+    internal string ReadLineWithCancel()
+    {
+      string result = null;
+      int length = 0;
+
+      StringBuilder buffer = new StringBuilder();
+      //The key is read passing true for the intercept argument to prevent
+      //any characters from displaying when the Escape key is pressed.
+      CursorVisible = true;
+      ConsoleKeyInfo info = Console.ReadKey(true);
+      while (info.Key != ConsoleKey.Enter && info.Key != ConsoleKey.Escape)
+      {
+        if (info.Key == ConsoleKey.Backspace)
+        {
+          if (length > 0)
+          {
+            Console.SetCursorPosition(Console.CursorLeft - 1, Console.CursorTop);
+            Console.Write(" ");
+            Console.SetCursorPosition(Console.CursorLeft - 1, Console.CursorTop);
+            buffer.Remove(buffer.Length - 1, 1);
+            length--;
+          }
+        }
+        else if(
+          Char.IsLetterOrDigit(info.KeyChar) ||
+          Char.IsPunctuation(info.KeyChar) ||
+          Char.IsSymbol(info.KeyChar) ||
+          Char.IsWhiteSpace(info.KeyChar)
+          )
+        {
+          Console.Write(info.KeyChar.ToString());
+          buffer.Append(info.KeyChar);
+          length++;
+        }
+        info = Console.ReadKey(true);
+      }
+      CursorVisible = false;
+      if (info.Key == ConsoleKey.Enter)
+      {
+        result = buffer.ToString();
+      }
+
+      return result;
+    }
+
     // Explicit static constructor to tell C# compiler
     // not to mark type as beforefieldinit
     static ConsoleWrapper()
@@ -58,7 +103,8 @@ namespace CGui.Gui
     }
 
     public int CursorTop { get; internal set; }
-    public int WindowWidth {
+    public int WindowWidth
+    {
       get { return Console.WindowWidth; }
       set { Console.WindowWidth = value; }
     }
@@ -68,13 +114,16 @@ namespace CGui.Gui
       set { Console.WindowHeight = value; }
     }
 
-    public int LargestWindowWidth {
+    public int LargestWindowWidth
+    {
       get { return Console.LargestWindowWidth; }
     }
-    public int LargestWindowHeight {
+    public int LargestWindowHeight
+    {
       get { return Console.LargestWindowHeight; }
     }
-    public bool CursorVisible {
+    public bool CursorVisible
+    {
       get { return Console.CursorVisible; }
       set { Console.CursorVisible = value; }
     }

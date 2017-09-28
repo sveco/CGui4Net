@@ -26,14 +26,18 @@ namespace CGui.Gui
 
 			char[] splitChars = new char[] { ' ' };
 
-			if (str.Length <= chunkSize) { return str.Split(new string[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries).ToList(); }
+			if (str.Length <= chunkSize) { return str.Split(new string[] { Environment.NewLine }, StringSplitOptions.None).ToList(); }
 			StringBuilder sb = new StringBuilder();
 
-			var paragraphs = str.Split(new string[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries).ToList();
+			var paragraphs = str.Split(new string[] { Environment.NewLine }, StringSplitOptions.None).ToList();
 
 			foreach (var paragraph in paragraphs)
 			{
-				var words = paragraph.Split(splitChars);
+        //make sure there are no wild CR's or LF's
+        var tmp = paragraph.Replace("\r", string.Empty);
+        tmp = tmp.Replace("\r", string.Empty);
+
+        var words = tmp.Split(splitChars);
 				var currentLine = "";
         bool firstWord = true;
 				foreach (var word in words)
@@ -67,7 +71,7 @@ namespace CGui.Gui
 			}
 
 			return sb.ToString()
-				.Split(new string[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
+				.Split(new string[] { Environment.NewLine }, StringSplitOptions.None);
 		}
 
 		public static int VisibleLength(this string str)

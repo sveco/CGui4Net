@@ -192,10 +192,9 @@ namespace CGui.Gui
             } while (cont);
         }
 
-        Object thisLock = new Object();
         protected void RenderItem(int Index)
         {
-            lock (thisLock)
+            lock (Console.Lock)
             {
                 if (Index >= ListItems.Count()) return;
                 Console.SetCursorPosition(this.Left, this.Top + Index);
@@ -204,7 +203,7 @@ namespace CGui.Gui
                     Console.ForegroundColor = this.SelectedForegroundColor;
                     Console.BackgroundColor = this.SelectedBackgroundColor;
                 }
-                ConsoleWrapper.WriteLine(GetDisplayText(Index + Offset));
+                Console.WriteLine(GetDisplayText(Index + Offset));
                 if (SelectionPos == Index)
                 {
                     Console.ForegroundColor = this.ForegroundColor;

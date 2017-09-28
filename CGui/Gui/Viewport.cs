@@ -34,14 +34,9 @@ namespace CGui.Gui
 
         public Collection<GuiElement> Controls = new Collection<GuiElement>();
 
-        private void Clear()
-        {
-            Console.Clear();
-        }
-
         public override void Show()
         {
-            Clear();
+            Console.Clear();
             foreach (var e in Controls)
             {
                 if (e != null) { e.Show(); }
@@ -50,7 +45,7 @@ namespace CGui.Gui
 
         public override void Refresh()
         {
-            Clear();
+            Console.Clear();
             foreach (var e in Controls)
             {
                 if (e != null) { e.Refresh(); }

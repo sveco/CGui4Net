@@ -7,9 +7,9 @@ using System.Threading.Tasks;
 
 namespace CGui.Gui
 {
-    public class Footer : Line
+    public class Footer : Row
     {
-        public override int Top { get => Console.WindowHeight - 1; set { } }
+        public override int Top { get => ConsoleWrapper.WindowHeight - 1; set { } }
         public Footer(string text)
         {
             DisplayText = text;

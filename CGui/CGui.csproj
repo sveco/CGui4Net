@@ -23,6 +23,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <CodeAnalysisRuleSet>ExtendedDesignGuidelineRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -36,6 +37,15 @@
   <PropertyGroup>
     <StartupObject />
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug-local|AnyCPU'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\Debug-local\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>ExtendedDesignGuidelineRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -47,14 +57,18 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Gui\Primitives\Border.cs" />
     <Compile Include="Gui\ConsoleWrapper.cs" />
     <Compile Include="Gui\Input.cs" />
     <Compile Include="Gui\Primitives\GuiElement.cs" />
     <Compile Include="Gui\Header.cs" />
     <Compile Include="Gui\Picklist.cs" />
+    <Compile Include="Gui\Primitives\HorizontalLine.cs" />
+    <Compile Include="Gui\Primitives\Line.cs" />
     <Compile Include="Gui\Primitives\ListItem.cs" />
     <Compile Include="Gui\Footer.cs" />
-    <Compile Include="Gui\Primitives\Line.cs" />
+    <Compile Include="Gui\Primitives\Row.cs" />
+    <Compile Include="Gui\Primitives\Rectangle.cs" />
     <Compile Include="Gui\StringExtensions.cs" />
     <Compile Include="Gui\TextArea.cs" />
     <Compile Include="Gui\Viewport.cs" />

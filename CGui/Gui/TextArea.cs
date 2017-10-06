@@ -10,7 +10,7 @@ namespace CGui.Gui
     private static readonly object lockObject = new object();
 
     public bool ShowScrollbar = false;
-    private string ScrollBarChar = "█";
+    private static readonly string ScrollBarChar = "█";
 
     public override int Top { get; set; }
     public override int Left { get; set; }
@@ -23,7 +23,7 @@ namespace CGui.Gui
         _width = value;
         if (value > 0)
         {
-          parseText();
+          ParseText();
         }
       }
     }
@@ -45,7 +45,7 @@ namespace CGui.Gui
         _content = value;
         if (_width > 0)
         {
-          parseText();
+          ParseText();
         }
       }
     }
@@ -53,7 +53,7 @@ namespace CGui.Gui
     private IList<string> _lines = new List<string>();
     public int LinesCount { get { return _lines.Count(); } }
 
-    private IList<string> parseText()
+    private IList<string> ParseText()
     {
       _lines = new List<string>();
       if (!string.IsNullOrWhiteSpace(Content))
@@ -112,64 +112,64 @@ namespace CGui.Gui
       return result;
     }
 
-    private void renderControl()
+    protected override void RenderControl()
     {
       lock (Console.Lock)
       {
         for (int i = 0; i < Math.Min(Height, _lines.Count - Offset); i++)
         {
-          Console.SetCursorPosition(Left, Top + i);
-          Console.WriteLine(GetDisplayText(Offset + i));
+          ConsoleWrapper.SetCursorPosition(Left, Top + i);
+          ConsoleWrapper.WriteLine(GetDisplayText(Offset + i));
         }
       }
     }
 
     public override void Show()
     {
-      renderControl();
+      base.Show();
       if (this.WaitForInput)
       {
-        inputLoop();
+        InputLoop();
       }
     }
 
     public override void Refresh()
     {
-      renderControl();
+      RenderControl();
     }
 
-    private void inputLoop()
+    private void InputLoop()
     {
       bool cont = true;
       do
       {
-        var key = Console.ReadKey(true);
+        var key = ConsoleWrapper.ReadKey(true);
 
         switch (key.Key)
         {
           case ConsoleKey.UpArrow:
             if (Offset > 0) { Offset--; }
-            renderControl();
+            RenderControl();
             break;
 
           case ConsoleKey.DownArrow:
             if (_lines.Count > Height + Offset)
             {
               Offset++;
-              renderControl();
+              RenderControl();
             }
             break;
 
           case ConsoleKey.PageUp:
             if (Offset > 10) { Offset = Offset - 10; } else { Offset = 0; }
-            renderControl();
+            RenderControl();
             break;
 
           case ConsoleKey.PageDown:
             if (_lines.Count - 10 > Height + Offset)
             {
               Offset = Offset + 10;
-              renderControl();
+              RenderControl();
             }
             break;
 

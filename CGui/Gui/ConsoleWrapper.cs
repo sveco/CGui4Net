@@ -15,12 +15,12 @@ namespace CGui.Gui
     /// <summary>
     /// Use to lock console operations
     /// </summary>
-    public object Lock = new object();
+    internal object Lock = new object();
 
     #region Singleton implementation
-    private static readonly ConsoleWrapper instance = new ConsoleWrapper();
+    private static readonly ConsoleWrapper instance;
 
-    internal string ReadLineWithCancel()
+    internal static string ReadLineWithCancel()
     {
       string result = null;
       int length = 0;
@@ -69,11 +69,13 @@ namespace CGui.Gui
     // not to mark type as beforefieldinit
     static ConsoleWrapper()
     {
+      instance = new ConsoleWrapper();
     }
 
     private ConsoleWrapper()
     {
       CursorVisible = false;
+      Console.OutputEncoding = Encoding.UTF8;
     }
 
     public static ConsoleWrapper Instance
@@ -84,56 +86,59 @@ namespace CGui.Gui
       }
     }
 
-    internal void Clear()
+    internal static void Clear()
     {
       Console.Clear();
     }
     #endregion
 
     #region Console methods
-    public ConsoleColor ForegroundColor
+    public static ConsoleColor ForegroundColor
     {
       get { return Console.ForegroundColor; }
       set { Console.ForegroundColor = value; }
     }
-    public ConsoleColor BackgroundColor
+    public static ConsoleColor BackgroundColor
     {
       get { return Console.BackgroundColor; }
       set { Console.BackgroundColor = value; }
     }
 
-    public int CursorTop { get; internal set; }
-    public int WindowWidth
+    public static int CursorTop {
+      get { return Console.CursorTop; }
+      set { Console.CursorTop = value; }
+    }
+    public static int WindowWidth
     {
       get { return Console.WindowWidth; }
       set { Console.WindowWidth = value; }
     }
-    public int WindowHeight
+    public static int WindowHeight
     {
       get { return Console.WindowHeight; }
       set { Console.WindowHeight = value; }
     }
 
-    public int LargestWindowWidth
+    public static int LargestWindowWidth
     {
       get { return Console.LargestWindowWidth; }
     }
-    public int LargestWindowHeight
+    public static int LargestWindowHeight
     {
       get { return Console.LargestWindowHeight; }
     }
-    public bool CursorVisible
+    public static bool CursorVisible
     {
       get { return Console.CursorVisible; }
       set { Console.CursorVisible = value; }
     }
 
-    internal void SetCursorPosition(int left, int top)
+    internal static void SetCursorPosition(int left, int top)
     {
       Console.SetCursorPosition(left, top);
     }
 
-    internal void Write(string value)
+    internal static void Write(string value)
     {
       Console.Write(value);
     }
@@ -146,7 +151,7 @@ namespace CGui.Gui
       return res;
     }
 
-    internal void SetWindowSize(int width, int height)
+    internal static void SetWindowSize(int width, int height)
     {
       Console.SetWindowSize(width, height);
     }
@@ -157,11 +162,11 @@ namespace CGui.Gui
     private static ConsoleColor previousForeground;
     private static ConsoleColor previousBackground;
 
-    public void WriteLine(string s)
+    public static void WriteLine(string value)
     {
       SaveColor();
-      var chunks = Regex.Split(s, regexExcape, RegexOptions.ExplicitCapture);
-      var matches = regex.Matches(s);
+      var chunks = Regex.Split(value, regexExcape, RegexOptions.ExplicitCapture);
+      var matches = regex.Matches(value);
 
       for (int i = 0; i < chunks.Length; i++)
       {
@@ -207,7 +212,7 @@ namespace CGui.Gui
       Console.BackgroundColor = previousBackground;
     }
 
-    internal ConsoleKeyInfo ReadKey(bool intercept)
+    internal static ConsoleKeyInfo ReadKey(bool intercept)
     {
       return Console.ReadKey(intercept);
     }

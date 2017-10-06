@@ -9,8 +9,8 @@ namespace CGui.Gui
   {
     public Viewport()
     {
-      this.Width = Console.WindowWidth;
-      this.Height = Console.WindowHeight;
+      this.Width = ConsoleWrapper.WindowWidth;
+      this.Height = ConsoleWrapper.WindowHeight;
     }
 
     public override int Top { get => 0; set { } }
@@ -19,48 +19,48 @@ namespace CGui.Gui
     {
       get
       {
-        return Console.WindowWidth;
+        return ConsoleWrapper.WindowWidth;
       }
       set
       {
-        Console.SetWindowSize(Math.Min(value, Console.LargestWindowWidth), this.Height);
+        ConsoleWrapper.SetWindowSize(Math.Min(value, ConsoleWrapper.LargestWindowWidth), this.Height);
       }
     }
     public override int Height
     {
       get
       {
-        return Console.WindowHeight;
+        return ConsoleWrapper.WindowHeight;
       }
       set
       {
-        Console.SetWindowSize(this.Width, Math.Min(value, Console.LargestWindowHeight));
+        ConsoleWrapper.SetWindowSize(this.Width, Math.Min(value, ConsoleWrapper.LargestWindowHeight));
       }
     }
 
     public Collection<GuiElement> Controls = new Collection<GuiElement>();
 
-    public override void Show()
+    protected override void RenderControl()
     {
-      Console.Clear();
+      ConsoleWrapper.Clear();
       foreach (var e in Controls)
       {
         if (e != null) {
-          e.Show();
           e.IsDisplayed = true;
+          e.Show();
         }
       }
     }
 
     public override void Refresh()
     {
-      Console.Clear();
+      ConsoleWrapper.Clear();
       foreach (var e in Controls)
       {
         if (e != null)
         {
-          e.Refresh();
           e.IsDisplayed = true;
+          e.Refresh();
         }
       }
     }

@@ -12,11 +12,11 @@ namespace CGui.Gui
   public class Picklist<T> : GuiElement
   {
     public int Offset = 0;
-    public bool ShowScrollbar { get; set; }
+    public bool ShowScrollBar { get; set; }
     private string ScrollBarChar = "█";
     private IList<ListItem<T>> listItems = new List<ListItem<T>>();
     public int SelectedItemIndex = 0;
-    public int SelectionPos = 0;
+    public int SelectionPosition = 0;
     private Action<ListItem<T>, Picklist<T>> ProcessItem;
     public int TotalItems { get { return ListItems.Count(); } }
 
@@ -24,10 +24,12 @@ namespace CGui.Gui
     public override int Left { get; set; }
     public override int Width { get; set; }
     public override int Height { get; set; }
+
+    private int ListHeight { get { return this.Height - (BorderWidth * 2); } }
     public IList<ListItem<T>> ListItems
     {
       get => listItems;
-      set
+      internal set
       {
         listItems.Clear();
         if (value != null)
@@ -76,21 +78,32 @@ namespace CGui.Gui
       }
       this.ProcessItem = processItem;
     }
+    protected override void RenderControl()
+    {
+      if (TotalItems == 0) { return; }
+
+      //Console.CursorVisible = false;
+      this.IsDisplayed = true;
+
+      ConsoleWrapper.ForegroundColor = this.ForegroundColor;
+      ConsoleWrapper.BackgroundColor = this.BackgroundColor;
+      for (int i = 0; i < Math.Min(ListHeight, TotalItems - Offset); i++)
+      {
+        RenderItem(i);
+      }
+
+      //this.Select();
+    }
 
     public override void Show()
     {
-
-      if (TotalItems == 0) { return; }
-
-      Console.CursorVisible = false;
-      this.IsDisplayed = true;
-      this.RenderControl();
-      this.Select();
+      base.Show();
+      Select();
     }
 
     public override void Refresh()
     {
-      Console.CursorVisible = false;
+      ConsoleWrapper.CursorVisible = false;
       this.RenderControl();
     }
 
@@ -112,13 +125,13 @@ namespace CGui.Gui
       bool cont = true;
       do
       {
-        var key = Console.ReadKey(true);
-        var prevItem = SelectionPos;
+        var key = ConsoleWrapper.ReadKey(true);
+        var prevItem = SelectionPosition;
         switch (key.Key)
         {
           case ConsoleKey.UpArrow:
             if (SelectedItemIndex > 0) { SelectedItemIndex--; }
-            if (SelectionPos - 1 < 0)
+            if (SelectionPosition - 1 < 0)
             {
               if (Offset > 0)
               {
@@ -128,32 +141,32 @@ namespace CGui.Gui
             }
             else
             {
-              SelectionPos--;
+              SelectionPosition--;
               RenderItem(prevItem);
-              RenderItem(SelectionPos);
+              RenderItem(SelectionPosition);
             }
 
             break;
           case ConsoleKey.DownArrow:
             if (SelectedItemIndex + 1 < TotalItems) { SelectedItemIndex++; } else { break; }
-            if (SelectionPos + 1 >= Height)
+            if (SelectionPosition + 1 >= ListHeight)
             {
-              if (Offset + Height < TotalItems) { Offset++; }
+              if (Offset + ListHeight < TotalItems) { Offset++; }
               RenderControl();
             }
             else
             {
-              SelectionPos++;
+              SelectionPosition++;
               RenderItem(prevItem);
-              RenderItem(SelectionPos);
+              RenderItem(SelectionPosition);
             }
             break;
 
           case ConsoleKey.PageUp:
             if (SelectedItemIndex > 10) { SelectedItemIndex -= 10; } else { SelectedItemIndex = 0; }
-            if (SelectionPos - 10 < 0)
+            if (SelectionPosition - 10 < 0)
             {
-              SelectionPos = 0;
+              SelectionPosition = 0;
               if (Offset >= 10)
               {
                 Offset -= 10;
@@ -164,32 +177,32 @@ namespace CGui.Gui
             }
             else
             {
-              SelectionPos -= 10;
+              SelectionPosition -= 10;
               RenderItem(prevItem);
-              RenderItem(SelectionPos);
+              RenderItem(SelectionPosition);
             }
             break;
 
           case ConsoleKey.PageDown:
             if (SelectedItemIndex + 10 < TotalItems) { SelectedItemIndex += 10; } else { SelectedItemIndex = TotalItems - 1; }
-            if (SelectionPos + 10 > Math.Min(Height, TotalItems - 1))
+            if (SelectionPosition + 10 >= Math.Min(ListHeight, TotalItems - 1))
             {
-              var prevSel = SelectionPos;
-              SelectionPos = Math.Min(Height - 1, TotalItems - 1);
-              Offset += 10 - (SelectionPos - prevSel);
+              var prevSel = SelectionPosition;
+              SelectionPosition = Math.Min(ListHeight - 1, TotalItems - 1);
+              Offset += 10 - (SelectionPosition - prevSel);
 
-              if (Offset > TotalItems - Height)
+              if (Offset > TotalItems - ListHeight)
               {
-                Offset = TotalItems - Height;
+                Offset = TotalItems - ListHeight;
                 if (Offset < 0) { Offset = 0; }
               }
               RenderControl();
             }
             else
             {
-              SelectionPos = Math.Min(SelectionPos + 10, TotalItems - 1);
+              SelectionPosition = Math.Min(SelectionPosition + 10, TotalItems - 1);
               RenderItem(prevItem);
-              RenderItem(SelectionPos);
+              RenderItem(SelectionPosition);
             }
             break;
 
@@ -209,33 +222,23 @@ namespace CGui.Gui
       } while (cont);
     }
 
-    protected void RenderItem(int Index)
+    protected void RenderItem(int index)
     {
       lock (Console.Lock)
       {
-        if (Index >= ListItems.Count()) return;
-        Console.SetCursorPosition(this.Left, this.Top + Index);
-        if (SelectionPos == Index)
+        if (index >= ListItems.Count()) return;
+        ConsoleWrapper.SetCursorPosition(this.Left + BorderWidth, this.Top + index + BorderWidth);
+        if (SelectionPosition == index)
         {
-          Console.ForegroundColor = this.SelectedForegroundColor;
-          Console.BackgroundColor = this.SelectedBackgroundColor;
+          ConsoleWrapper.ForegroundColor = this.SelectedForegroundColor;
+          ConsoleWrapper.BackgroundColor = this.SelectedBackgroundColor;
         }
-        Console.WriteLine(GetDisplayText(Index + Offset));
-        if (SelectionPos == Index)
+        ConsoleWrapper.WriteLine(GetDisplayText(index + Offset));
+        if (SelectionPosition == index)
         {
-          Console.ForegroundColor = this.ForegroundColor;
-          Console.BackgroundColor = this.BackgroundColor;
+          ConsoleWrapper.ForegroundColor = this.ForegroundColor;
+          ConsoleWrapper.BackgroundColor = this.BackgroundColor;
         }
-      }
-    }
-
-    private void RenderControl()
-    {
-      Console.ForegroundColor = this.ForegroundColor;
-      Console.BackgroundColor = this.BackgroundColor;
-      for (int i = 0; i < Math.Min(Height, TotalItems - Offset); i++)
-      {
-        RenderItem(i);
       }
     }
 
@@ -254,31 +257,31 @@ namespace CGui.Gui
       switch (this.TextAlignment)
       {
         case TextAlignment.Left:
-          result = result.PadRight(this.Width, this.PadChar);
+          result = result.PadRight(this.Width-1 - (BorderWidth * 2), this.PadChar);
           break;
 
         case TextAlignment.Right:
-          result = result.PadLeft(this.Width, this.PadChar);
+          result = result.PadLeft(this.Width-1 - (BorderWidth *2), this.PadChar);
           break;
 
         case TextAlignment.Center:
-          result = result.PadBoth(this.Width, this.PadChar);
+          result = result.PadBoth(this.Width-1 - (BorderWidth * 2), this.PadChar);
           break;
       }
 
-      if (result.Length > this.Width)
+      if (result.Length > this.Width - 1)
       {
-        if (result.Length > 3)
+        if (result.Length > 4)
         {
-          result = result.Substring(0, this.Width - 3) + "...";
+          result = result.Substring(0, this.Width - 4 - (BorderWidth * 2)) + "...";
         }
         else
         {
-          result = result.Substring(0, this.Width);
+          result = result.Substring(0, this.Width - (BorderWidth * 2));
         }
       }
 
-      if (ShowScrollbar && Height < TotalItems)
+      if (ShowScrollBar && Height < TotalItems)
       {
         var ratio = (double)Height / TotalItems;
         int size = (int)Math.Ceiling((double)Height * ratio);

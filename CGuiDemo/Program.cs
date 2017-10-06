@@ -9,9 +9,9 @@ using System.Threading.Tasks;
 
 namespace CGuiDemo
 {
-    class Program
-    {
-        static ListItem<string>[] list = {
+  class Program
+  {
+    static ListItem<string>[] list = {
             new ListItem<string>() { DisplayText = "Test 1", Index = 0, Value = "Test Value 1" },
             new ListItem<string>() { DisplayText = "Test 2", Index = 1, Value = "Test Value 2" },
             new ListItem<string>() { DisplayText = "Test 3", Index = 2, Value = "Test Value 3" },
@@ -30,60 +30,71 @@ namespace CGuiDemo
             new ListItem<string>() { DisplayText = "Test 16", Index = 15, Value = "Test Value 16" }
         };
 
-        public static void HandleKey(ListItem<string> item)
-        {
-            Debug.WriteLine(item.Value);
-        }
-
-        static Header h;
-        static Footer f;
-
-        static void Main(string[] args)
-        {
-            h = new CGui.Gui.Header("Test App 1");
-            h.TextAlignment = TextAlignment.Center;
-            h.PadChar = '=';
-            h.Show();
-
-            f = new CGui.Gui.Footer("Status bar here  ");
-            f.TextAlignment = TextAlignment.Right;
-            f.PadChar = '=';
-            f.Show();
-
-            //void processItem(ListItem<string> i, CGui.Gui.Picklist<string> parent)
-            //{
-            //    var rnd = new Random().Next(5000);
-            //    System.Threading.Thread.Sleep(rnd);
-            //    i.DisplayText += " - Updated";
-            //    parent.UpdateItem(i.Index);
-            //}
-
-            var l = new CGui.Gui.Picklist<string>(list, /* processItem*/ null)
-            {
-                Left = 0,
-                Top = 2,
-                Width = 40,
-                Height = 6,
-                ShowScrollbar = true,
-                TextAlignment = TextAlignment.Left,
-            };
-            l.OnItemKeyHandler += List_OnItemKeyHandler;
-            l.Show();
-        }
-
-        private static bool List_OnItemKeyHandler(ConsoleKeyInfo key, ListItem<string> selectedItem, Picklist<string> parent)
-        {
-            if (key.Key == ConsoleKey.Enter)
-            {
-                Debug.WriteLine(selectedItem.Value);
-            }
-            if (key.Key == ConsoleKey.Escape)
-            {
-                ///returning false exits the keyboard loop
-                return false;
-            }
-            ///return true to continue capturing keyboard input
-            return true;
-        }
+    public static void HandleKey(ListItem<string> item)
+    {
+      Debug.WriteLine(item.Value);
     }
+
+    static Header h;
+    static Footer f;
+
+    static void Main(string[] args)
+    {
+      h = new CGui.Gui.Header("Test App 1");
+      h.TextAlignment = TextAlignment.Center;
+      h.PadChar = '=';
+      h.Show();
+
+      f = new CGui.Gui.Footer("Status bar here  ");
+      f.TextAlignment = TextAlignment.Right;
+      f.PadChar = '=';
+      f.Show();
+
+      //void processItem(ListItem<string> i, CGui.Gui.Picklist<string> parent)
+      //{
+      //    var rnd = new Random().Next(5000);
+      //    System.Threading.Thread.Sleep(rnd);
+      //    i.DisplayText += " - Updated";
+      //    parent.UpdateItem(i.Index);
+      //}
+
+      //var r = new Rectangle()
+      //{
+      //  Left = 0,
+      //  Top = 1,
+      //  Height = 8,
+      //  Width = 42,
+      //  BorderStyle = BorderStyle.QuadrupleDash
+      //};
+      //r.Show();
+
+      var l = new CGui.Gui.Picklist<string>(list, /* processItem*/ null)
+      {
+        Left = 1,
+        Top = 2,
+        Width = 40,
+        Height = 12,
+        ShowScrollBar = true,
+        TextAlignment = TextAlignment.Left,
+        BorderStyle = BorderStyle.Single
+      };
+      l.OnItemKeyHandler += List_OnItemKeyHandler;
+      l.Show();
+    }
+
+    private static bool List_OnItemKeyHandler(ConsoleKeyInfo key, ListItem<string> selectedItem, Picklist<string> parent)
+    {
+      if (key.Key == ConsoleKey.Enter)
+      {
+        Debug.WriteLine(selectedItem.Value);
+      }
+      if (key.Key == ConsoleKey.Escape)
+      {
+        ///returning false exits the keyboard loop
+        return false;
+      }
+      ///return true to continue capturing keyboard input
+      return true;
+    }
+  }
 }

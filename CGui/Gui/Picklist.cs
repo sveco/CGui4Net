@@ -9,7 +9,7 @@ using System.Threading;
 
 namespace CGui.Gui
 {
-  public class Picklist<T> : GuiElement
+  public class Picklist<T> : GuiElement, IDisposable
   {
     public int Offset = 0;
     public bool ShowScrollBar { get; set; }
@@ -81,18 +81,11 @@ namespace CGui.Gui
     protected override void RenderControl()
     {
       if (TotalItems == 0) { return; }
-
-      //Console.CursorVisible = false;
       this.IsDisplayed = true;
-
-      ConsoleWrapper.ForegroundColor = this.ForegroundColor;
-      ConsoleWrapper.BackgroundColor = this.BackgroundColor;
       for (int i = 0; i < Math.Min(ListHeight, TotalItems - Offset); i++)
       {
         RenderItem(i);
       }
-
-      //this.Select();
     }
 
     public override void Show()
@@ -103,7 +96,6 @@ namespace CGui.Gui
 
     public override void Refresh()
     {
-      ConsoleWrapper.CursorVisible = false;
       this.RenderControl();
     }
 
@@ -114,7 +106,6 @@ namespace CGui.Gui
         new Thread(() =>
         {
           Thread.CurrentThread.IsBackground = true;
-                  /* run your code here */
           Parallel.ForEach<ListItem<T>>(this.ListItems, (item) =>
           {
             ProcessItem.Invoke(item, this);
@@ -125,7 +116,7 @@ namespace CGui.Gui
       bool cont = true;
       do
       {
-        var key = ConsoleWrapper.ReadKey(true);
+        var key = ConsoleWrapper.Instance.ReadKey(true);
         var prevItem = SelectionPosition;
         switch (key.Key)
         {
@@ -224,21 +215,27 @@ namespace CGui.Gui
 
     protected void RenderItem(int index)
     {
-      lock (Console.Lock)
+      lock (ConsoleWrapper.Instance.Lock)
       {
+        ConsoleWrapper.Instance.CursorVisible = false;
+        ConsoleWrapper.Instance.SaveColor();
+
         if (index >= ListItems.Count()) return;
-        ConsoleWrapper.SetCursorPosition(this.Left + BorderWidth, this.Top + index + BorderWidth);
+        ConsoleWrapper.Instance.SetCursorPosition(this.Left + BorderWidth, this.Top + index + BorderWidth);
         if (SelectionPosition == index)
         {
-          ConsoleWrapper.ForegroundColor = this.SelectedForegroundColor;
-          ConsoleWrapper.BackgroundColor = this.SelectedBackgroundColor;
+          ConsoleWrapper.Instance.ForegroundColor = this.SelectedForegroundColor;
+          ConsoleWrapper.Instance.BackgroundColor = this.SelectedBackgroundColor;
         }
-        ConsoleWrapper.WriteLine(GetDisplayText(index + Offset));
+        ConsoleWrapper.Instance.WriteLine(GetDisplayText(index + Offset));
         if (SelectionPosition == index)
         {
-          ConsoleWrapper.ForegroundColor = this.ForegroundColor;
-          ConsoleWrapper.BackgroundColor = this.BackgroundColor;
+          ConsoleWrapper.Instance.ForegroundColor = this.ForegroundColor;
+          ConsoleWrapper.Instance.BackgroundColor = this.BackgroundColor;
         }
+
+        ConsoleWrapper.Instance.RestoreColor();
+        ConsoleWrapper.Instance.SetCursorPosition(0, 0);
       }
     }
 
@@ -312,5 +309,25 @@ namespace CGui.Gui
         ListItems.Add(i);
       }
     }
+
+    bool _disposed;
+    protected override void Dispose(bool disposing)
+    {
+      if (_disposed)
+        return;
+
+      if (disposing)
+      {
+        // free other managed objects that implement
+        // IDisposable only
+      }
+
+      // release any unmanaged objects
+      // set the object references to null
+      listItems = null;
+
+      _disposed = true;
+    }
   }
 }
+

@@ -20,7 +20,7 @@ namespace CGui.Gui
     #region Singleton implementation
     private static readonly ConsoleWrapper instance;
 
-    internal static string ReadLineWithCancel()
+    internal string ReadLineWithCancel()
     {
       string result = null;
       int length = 0;
@@ -75,6 +75,7 @@ namespace CGui.Gui
     private ConsoleWrapper()
     {
       CursorVisible = false;
+      SaveColor();
       Console.OutputEncoding = Encoding.UTF8;
     }
 
@@ -93,52 +94,52 @@ namespace CGui.Gui
     #endregion
 
     #region Console methods
-    public static ConsoleColor ForegroundColor
+    public ConsoleColor ForegroundColor
     {
       get { return Console.ForegroundColor; }
       set { Console.ForegroundColor = value; }
     }
-    public static ConsoleColor BackgroundColor
+    public ConsoleColor BackgroundColor
     {
       get { return Console.BackgroundColor; }
       set { Console.BackgroundColor = value; }
     }
 
-    public static int CursorTop {
+    public int CursorTop {
       get { return Console.CursorTop; }
       set { Console.CursorTop = value; }
     }
-    public static int WindowWidth
+    public int WindowWidth
     {
       get { return Console.WindowWidth; }
       set { Console.WindowWidth = value; }
     }
-    public static int WindowHeight
+    public int WindowHeight
     {
       get { return Console.WindowHeight; }
       set { Console.WindowHeight = value; }
     }
 
-    public static int LargestWindowWidth
+    public int LargestWindowWidth
     {
       get { return Console.LargestWindowWidth; }
     }
-    public static int LargestWindowHeight
+    public int LargestWindowHeight
     {
       get { return Console.LargestWindowHeight; }
     }
-    public static bool CursorVisible
+    public bool CursorVisible
     {
       get { return Console.CursorVisible; }
       set { Console.CursorVisible = value; }
     }
 
-    internal static void SetCursorPosition(int left, int top)
+    internal void SetCursorPosition(int left, int top)
     {
       Console.SetCursorPosition(left, top);
     }
 
-    internal static void Write(string value)
+    internal void Write(string value)
     {
       Console.Write(value);
     }
@@ -151,7 +152,7 @@ namespace CGui.Gui
       return res;
     }
 
-    internal static void SetWindowSize(int width, int height)
+    internal void SetWindowSize(int width, int height)
     {
       Console.SetWindowSize(width, height);
     }
@@ -159,12 +160,11 @@ namespace CGui.Gui
 
     static string regexExcape = @"\p{C}\[([fb]?)\:?(\w+)\]";
     static Regex regex = new Regex(regexExcape);
-    private static ConsoleColor previousForeground;
-    private static ConsoleColor previousBackground;
+    private ConsoleColor previousForeground;
+    private ConsoleColor previousBackground;
 
-    public static void WriteLine(string value)
+    public void WriteLine(string value)
     {
-      SaveColor();
       var chunks = Regex.Split(value, regexExcape, RegexOptions.ExplicitCapture);
       var matches = regex.Matches(value);
 
@@ -196,23 +196,22 @@ namespace CGui.Gui
         }
         Console.Write(chunks[i]);
       }
-      RestoreColor();
       Console.Write(Environment.NewLine);
     }
 
-    private static void SaveColor()
+    public void SaveColor()
     {
       previousForeground = Console.ForegroundColor;
       previousBackground = Console.BackgroundColor;
     }
 
-    private static void RestoreColor()
+    public void RestoreColor()
     {
       Console.ForegroundColor = previousForeground;
       Console.BackgroundColor = previousBackground;
     }
 
-    internal static ConsoleKeyInfo ReadKey(bool intercept)
+    internal ConsoleKeyInfo ReadKey(bool intercept)
     {
       return Console.ReadKey(intercept);
     }

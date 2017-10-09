@@ -23,14 +23,8 @@ namespace CGui.Gui.Primitives
     int _top;
     public override int Top { get => _top; set => _top = value; }
     public override int Left { get => 0; set { } }
-    public override int Width { get => ConsoleWrapper.WindowWidth; set { } }
+    public override int Width { get => ConsoleWrapper.Instance.WindowWidth; set { } }
     public override int Height { get => 1; set { } }
-
-    private void RenderElement()
-    {
-      ConsoleWrapper.SetCursorPosition(this.Left, this.Top);
-      ConsoleWrapper.WriteLine(FormatDisplayText(DisplayText));
-    }
 
     protected string FormatDisplayText(string displayText)
     {
@@ -54,17 +48,19 @@ namespace CGui.Gui.Primitives
 
     protected override void RenderControl()
     {
-      lock (Console.Lock)
+      lock (ConsoleWrapper.Instance.Lock)
       {
-        ConsoleWrapper.CursorVisible = false;
-        var f = ConsoleWrapper.ForegroundColor;
-        var b = ConsoleWrapper.BackgroundColor;
-        ConsoleWrapper.ForegroundColor = this.ForegroundColor;
-        ConsoleWrapper.BackgroundColor = this.BackgroundColor;
-        this.RenderElement();
-        ConsoleWrapper.SetCursorPosition(0, 0);
-        ConsoleWrapper.ForegroundColor = f;
-        ConsoleWrapper.BackgroundColor = b;
+        ConsoleWrapper.Instance.CursorVisible = false;
+        ConsoleWrapper.Instance.SaveColor();
+
+        ConsoleWrapper.Instance.ForegroundColor = this.ForegroundColor;
+        ConsoleWrapper.Instance.BackgroundColor = this.BackgroundColor;
+
+        ConsoleWrapper.Instance.SetCursorPosition(this.Left, this.Top);
+        ConsoleWrapper.Instance.WriteLine(FormatDisplayText(DisplayText));
+
+        ConsoleWrapper.Instance.SetCursorPosition(0, 0);
+        ConsoleWrapper.Instance.RestoreColor();
       }
       IsDisplayed = true;
     }
@@ -72,6 +68,17 @@ namespace CGui.Gui.Primitives
     public override void Refresh()
     {
       Show();
+    }
+
+    bool _disposed;
+    protected override void Dispose(bool disposing)
+    {
+      if (_disposed)
+        return;
+
+      _displayText = null;
+
+      _disposed = true;
     }
   }
 }

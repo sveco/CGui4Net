@@ -21,10 +21,10 @@ namespace CGui.Gui
       get
       {
         base.Show();
-        lock (Console.Lock)
+        lock (ConsoleWrapper.Instance.Lock)
         {
-          ConsoleWrapper.SetCursorPosition(this.DisplayText.Length + 1, Top);
-          var s = ConsoleWrapper.ReadLineWithCancel();
+          ConsoleWrapper.Instance.SetCursorPosition(this.DisplayText.Length + 1, Top);
+          var s = ConsoleWrapper.Instance.ReadLineWithCancel();
           this.ClearCurrentLine();
           return s;
         }

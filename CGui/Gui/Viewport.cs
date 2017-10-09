@@ -5,12 +5,12 @@ using System.Threading.Tasks;
 
 namespace CGui.Gui
 {
-  public class Viewport : GuiElement
+  public class Viewport : GuiElement, IDisposable
   {
     public Viewport()
     {
-      this.Width = ConsoleWrapper.WindowWidth;
-      this.Height = ConsoleWrapper.WindowHeight;
+      this.Width = ConsoleWrapper.Instance.WindowWidth;
+      this.Height = ConsoleWrapper.Instance.WindowHeight;
     }
 
     public override int Top { get => 0; set { } }
@@ -19,22 +19,22 @@ namespace CGui.Gui
     {
       get
       {
-        return ConsoleWrapper.WindowWidth;
+        return ConsoleWrapper.Instance.WindowWidth;
       }
       set
       {
-        ConsoleWrapper.SetWindowSize(Math.Min(value, ConsoleWrapper.LargestWindowWidth), this.Height);
+        ConsoleWrapper.Instance.SetWindowSize(Math.Min(value, ConsoleWrapper.Instance.LargestWindowWidth), this.Height);
       }
     }
     public override int Height
     {
       get
       {
-        return ConsoleWrapper.WindowHeight;
+        return ConsoleWrapper.Instance.WindowHeight;
       }
       set
       {
-        ConsoleWrapper.SetWindowSize(this.Width, Math.Min(value, ConsoleWrapper.LargestWindowHeight));
+        ConsoleWrapper.Instance.SetWindowSize(this.Width, Math.Min(value, ConsoleWrapper.Instance.LargestWindowHeight));
       }
     }
 
@@ -43,26 +43,58 @@ namespace CGui.Gui
     protected override void RenderControl()
     {
       ConsoleWrapper.Clear();
-      foreach (var e in Controls)
-      {
-        if (e != null) {
+
+      Parallel.ForEach(Controls, (e) => {
+        if (e != null)
+        {
           e.IsDisplayed = true;
           e.Show();
         }
-      }
+      });
     }
 
     public override void Refresh()
     {
       ConsoleWrapper.Clear();
-      foreach (var e in Controls)
-      {
+      Parallel.ForEach(Controls, (e) => {
         if (e != null)
         {
           e.IsDisplayed = true;
           e.Refresh();
         }
+      });
+    }
+
+    private bool _disposed;
+
+    // a finalizer is not necessary, as it is inherited from
+    // the base class
+
+    protected override void Dispose(bool disposing)
+    {
+      if (_disposed)
+        return;
+
+      if (disposing)
+      {
+        // free other managed objects that implement
+        // IDisposable only
+        foreach (var control in Controls)
+        {
+          if (control != null)
+          {
+            if (control is IDisposable)
+            {
+              control.Dispose();
+            }
+          }
+        }
+        Controls = null;
       }
+
+      // release any unmanaged objects
+      // set object references to null
+      _disposed = true;
     }
   }
 }

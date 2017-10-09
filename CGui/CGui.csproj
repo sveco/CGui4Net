@@ -63,8 +63,6 @@
     <Compile Include="Gui\Primitives\GuiElement.cs" />
     <Compile Include="Gui\Header.cs" />
     <Compile Include="Gui\Picklist.cs" />
-    <Compile Include="Gui\Primitives\HorizontalLine.cs" />
-    <Compile Include="Gui\Primitives\Line.cs" />
     <Compile Include="Gui\Primitives\ListItem.cs" />
     <Compile Include="Gui\Footer.cs" />
     <Compile Include="Gui\Primitives\Row.cs" />

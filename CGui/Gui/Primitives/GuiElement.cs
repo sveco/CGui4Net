@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace CGui.Gui.Primitives
 {
@@ -15,14 +11,12 @@ namespace CGui.Gui.Primitives
   /// <summary>
   /// Abstract class representing base UI component
   /// </summary>
-  public abstract class GuiElement
+  public abstract class GuiElement : IDisposable
   {
-    public static readonly ConsoleWrapper Console = ConsoleWrapper.Instance;
-
     public bool IsDisplayed { get; set; }
 
-    public ConsoleColor ForegroundColor = ConsoleWrapper.ForegroundColor;
-    public ConsoleColor BackgroundColor = ConsoleWrapper.BackgroundColor;
+    public ConsoleColor ForegroundColor = ConsoleColor.White;
+    public ConsoleColor BackgroundColor = ConsoleColor.Black;
 
     public ConsoleColor SelectedForegroundColor = ConsoleColor.DarkBlue;
     public ConsoleColor SelectedBackgroundColor = ConsoleColor.Green;
@@ -36,9 +30,12 @@ namespace CGui.Gui.Primitives
 
     //public abstract void Show();
     public virtual void Show() {
-      RenderBorder();
-      RenderControl();
+        RenderBorder();
+        //BeginRenderControl();
+        RenderControl();
+        //EndRenderControl();
     }
+
     private void RenderBorder()
     {
       if (b.Style == BorderStyle.None)
@@ -68,13 +65,41 @@ namespace CGui.Gui.Primitives
     public char PadChar = ' ';
     protected void ClearCurrentLine()
     {
-      lock (Console.Lock)
-      {
-        int currentLineCursor = ConsoleWrapper.CursorTop;
-        ConsoleWrapper.SetCursorPosition(0, Top);
-        ConsoleWrapper.Write(new string(' ', ConsoleWrapper.WindowWidth));
-        ConsoleWrapper.SetCursorPosition(0, currentLineCursor);
-      }
+        int currentLineCursor = ConsoleWrapper.Instance.CursorTop;
+        ConsoleWrapper.Instance.SetCursorPosition(0, Top);
+        ConsoleWrapper.Instance.Write(new string(' ', ConsoleWrapper.Instance.WindowWidth));
+        ConsoleWrapper.Instance.SetCursorPosition(0, currentLineCursor);
     }
+    bool _disposed;
+
+    public void Dispose()
+    {
+      Dispose(true);
+      GC.SuppressFinalize(this);
+    }
+
+    ~GuiElement()
+    {
+      Dispose(false);
+    }
+
+    protected abstract void Dispose(bool disposing);
+      /*
+    {
+      if (_disposed)
+        return;
+
+      if (disposing)
+      {
+        // free other managed objects that implement
+        // IDisposable only
+      }
+
+      // release any unmanaged objects
+      // set the object references to null
+
+      _disposed = true;
+    }
+    */
   }
 }

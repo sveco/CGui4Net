@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace CGui.Gui
 {
-  public class TextArea : GuiElement
+  public class TextArea : GuiElement, IDisposable
   {
     private static readonly object lockObject = new object();
 
@@ -114,12 +114,21 @@ namespace CGui.Gui
 
     protected override void RenderControl()
     {
-      lock (Console.Lock)
+      lock (ConsoleWrapper.Instance.Lock)
       {
         for (int i = 0; i < Math.Min(Height, _lines.Count - Offset); i++)
         {
-          ConsoleWrapper.SetCursorPosition(Left, Top + i);
-          ConsoleWrapper.WriteLine(GetDisplayText(Offset + i));
+          ConsoleWrapper.Instance.CursorVisible = false;
+          ConsoleWrapper.Instance.SaveColor();
+
+          ConsoleWrapper.Instance.ForegroundColor = this.ForegroundColor;
+          ConsoleWrapper.Instance.BackgroundColor = this.BackgroundColor;
+
+          ConsoleWrapper.Instance.SetCursorPosition(Left, Top + i);
+          ConsoleWrapper.Instance.WriteLine(GetDisplayText(Offset + i));
+
+          ConsoleWrapper.Instance.SetCursorPosition(0, 0);
+          ConsoleWrapper.Instance.RestoreColor();
         }
       }
     }
@@ -143,7 +152,7 @@ namespace CGui.Gui
       bool cont = true;
       do
       {
-        var key = ConsoleWrapper.ReadKey(true);
+        var key = ConsoleWrapper.Instance.ReadKey(true);
 
         switch (key.Key)
         {
@@ -186,6 +195,18 @@ namespace CGui.Gui
         }
 
       } while (cont);
+    }
+
+    bool _disposed;
+    protected override void Dispose(bool disposing)
+    {
+      if (_disposed)
+        return;
+
+      _content = null;
+      _lines = null;
+
+      _disposed = true;
     }
   }
 }

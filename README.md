@@ -4,14 +4,15 @@ Library with controls to create application with console-based user interface.
 
 Console Gui for .net
 
-**PM> Install-Package Cgui -Version 1.0.0.2**
+**PM> Install-Package Cgui -Version 1.1.0**
 
 Curently supported controls:
-- Picklist
-- TextArea
-- Header
-- Footer
-- Input
+- Picklist - Shows a list of options and allows user to pick one
+- TextArea - Renders scrollable text
+- Header - Row rendered on top
+- Footer - Row rendered on bottom
+- Input - Allows user to input text
+- Viewport - groups UI elements and renders them asynchronously
 
 **Usage**
 

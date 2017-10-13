@@ -12,6 +12,7 @@ namespace CGui.Gui
   /// </summary>
   public class ConsoleWrapper
   {
+    public static readonly string ColorReset = "\x1b[Reset]";
     /// <summary>
     /// Use to lock console operations
     /// </summary>

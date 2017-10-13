@@ -47,7 +47,9 @@ namespace CGui.Gui.Primitives
         Top = this.Top,
         Left = this.Left,
         Width = this.Width,
-        Height = this.Height
+        Height = this.Height,
+        ForegroundColor = b.ForegroundColor,
+        BackgroundColor = b.BackgroundColor
       };
       r.Show();
     }
@@ -61,6 +63,18 @@ namespace CGui.Gui.Primitives
     protected int BorderWidth { get { return (b.Style == BorderStyle.None ? 0 : 1); } }
     public BorderStyle BorderStyle { get => b.Style; set => b.Style = value; }
     public BorderWeight BorderWeight { get => b.Weight; set => b.Weight = value; }
+
+    public ConsoleColor BorderForegroundColor
+    {
+      get => b.ForegroundColor;
+      set => b.ForegroundColor = value;
+    }
+
+    public ConsoleColor BorderBackgroundColor
+    {
+      get => b.BackgroundColor;
+      set => b.BackgroundColor = value;
+    }
 
     public char PadChar = ' ';
     protected void ClearCurrentLine()
@@ -83,22 +97,5 @@ namespace CGui.Gui.Primitives
     }
 
     protected abstract void Dispose(bool disposing);
-      /*
-    {
-      if (_disposed)
-        return;
-
-      if (disposing)
-      {
-        // free other managed objects that implement
-        // IDisposable only
-      }
-
-      // release any unmanaged objects
-      // set the object references to null
-
-      _disposed = true;
-    }
-    */
   }
 }

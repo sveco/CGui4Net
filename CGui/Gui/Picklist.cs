@@ -14,6 +14,10 @@ namespace CGui.Gui
     public int Offset = 0;
     public bool ShowScrollBar { get; set; }
     private string ScrollBarChar = "█";
+    private string ScrollBarCharInactive = "▒";
+    private string ScrollBarCharUp = "▲";
+    private string ScrollBarCharDown = "▼";
+
     private IList<T> listItems = new List<T>();
     public int SelectedItemIndex = 0;
     public int SelectionPosition = 0;
@@ -157,11 +161,10 @@ namespace CGui.Gui
             if (SelectedItemIndex > 10) { SelectedItemIndex -= 10; } else { SelectedItemIndex = 0; }
             if (SelectionPosition - 10 < 0)
             {
-              SelectionPosition = 0;
+              SelectionPosition = SelectedItemIndex;
               if (Offset >= 10)
               {
                 Offset -= 10;
-
               }
               else { Offset = 0; }
               RenderControl();
@@ -278,22 +281,34 @@ namespace CGui.Gui
         }
       }
 
-      if (ShowScrollBar && Height < TotalItems)
+      var visibleHeight = Height - (BorderWidth * 2);
+      if (ShowScrollBar && visibleHeight > 3 && visibleHeight < TotalItems)
       {
-        var ratio = (double)Height / TotalItems;
-        int size = (int)Math.Ceiling((double)Height * ratio);
+        var ratio = (double)visibleHeight / TotalItems;
+        int size = (int)Math.Ceiling(((double)visibleHeight) * ratio) - 2;
         var top = Math.Ceiling(Offset * ratio);
+
+        bool first = (index - Offset == 0);
+        bool last = index - Offset == visibleHeight - 1;
 
         bool show = index - Offset > top
             && index - Offset < size + top;
 
-        if (show)
+        if (first)
         {
-          result = result + ScrollBarChar;
+          result = result + ConsoleWrapper.ColorReset + ScrollBarCharUp;
+        }
+        else if (last)
+        {
+          result = result + ConsoleWrapper.ColorReset + ScrollBarCharDown;
+        }
+        else if (show)
+        {
+          result = result + ConsoleWrapper.ColorReset + ScrollBarChar;
         }
         else
         {
-          result = result + this.PadChar;
+          result = result + ConsoleWrapper.ColorReset + ScrollBarCharInactive;
         }
       }
 

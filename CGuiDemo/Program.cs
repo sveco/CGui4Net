@@ -69,7 +69,9 @@ namespace CGuiDemo
         Height = 12,
         ShowScrollBar = true,
         TextAlignment = TextAlignment.Left,
-        BorderStyle = BorderStyle.Single
+        SelectedBackgroundColor = ConsoleColor.Magenta,
+        BorderStyle = BorderStyle.Single,
+        BorderForegroundColor = ConsoleColor.DarkMagenta
       };
       l.OnItemKeyHandler += List_OnItemKeyHandler;
 

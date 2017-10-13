@@ -40,6 +40,8 @@ namespace CGui.Gui.Primitives
   {
     private BorderStyle _style = BorderStyle.Single;
     private BorderWeight _weight = BorderWeight.Light;
+    private ConsoleColor _foregroundColor = ConsoleWrapper.Instance.ForegroundColor;
+    private ConsoleColor _backgroundColor = ConsoleWrapper.Instance.BackgroundColor;
 
     char[,,][] borders =
         {{
@@ -92,6 +94,9 @@ namespace CGui.Gui.Primitives
 
     public BorderWeight Weight { get => _weight; set => _weight = value; }
     public BorderStyle Style { get => _style; set => _style = value; }
+
+    public ConsoleColor ForegroundColor { get => _foregroundColor; set => _foregroundColor = value; }
+    public ConsoleColor BackgroundColor { get => _backgroundColor; set => _backgroundColor = value; }
 
     public char Get(PositionV v, PositionH h)
     {

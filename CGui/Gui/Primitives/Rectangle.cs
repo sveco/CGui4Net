@@ -11,19 +11,34 @@ namespace CGui.Gui.Primitives
 
     public override void Refresh()
     {
-      throw new NotImplementedException();
+      RenderControl();
     }
 
     Border b = new Border();
     public new BorderStyle BorderStyle
     {
-      get { return b.Style; }
-      set { b.Style = value; }
+      get => b.Style;
+      set => b.Style = value;
     }
+
+    public new ConsoleColor ForegroundColor {
+      get => b.ForegroundColor;
+      set => b.ForegroundColor = value;
+    }
+
+    public new ConsoleColor BackgroundColor
+    {
+      get => b.BackgroundColor;
+      set => b.BackgroundColor = value;
+    }
+
     protected override void RenderControl()
     {
       lock (ConsoleWrapper.Instance.Lock)
       {
+        ConsoleWrapper.Instance.SaveColor();
+        ConsoleWrapper.Instance.ForegroundColor = b.ForegroundColor;
+        ConsoleWrapper.Instance.BackgroundColor = b.BackgroundColor;
         ConsoleWrapper.Instance.SetCursorPosition(Left, Top);
         ConsoleWrapper.Instance.Write(b.Get(PositionV.Top, PositionH.Left).ToString());
         for (int i = 0; i < Width - 2; i++)
@@ -45,12 +60,14 @@ namespace CGui.Gui.Primitives
           ConsoleWrapper.Instance.Write(b.Get(PositionV.Bottom, PositionH.Middle).ToString());
         }
         ConsoleWrapper.Instance.Write(b.Get(PositionV.Bottom, PositionH.Right).ToString());
+        ConsoleWrapper.Instance.RestoreColor();
       }
     }
 
     protected override void Dispose(bool disposing)
     {
       //Nothing to dispose of.
+      b = null;
     }
   }
 }

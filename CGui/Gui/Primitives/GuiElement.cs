@@ -70,7 +70,6 @@ namespace CGui.Gui.Primitives
         ConsoleWrapper.Instance.Write(new string(' ', ConsoleWrapper.Instance.WindowWidth));
         ConsoleWrapper.Instance.SetCursorPosition(0, currentLineCursor);
     }
-    bool _disposed;
 
     public void Dispose()
     {

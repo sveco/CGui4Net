@@ -22,8 +22,8 @@ namespace CGui.Gui.Primitives
     }
     protected override void RenderControl()
     {
-      //lock (ConsoleWrapper.Instance.Lock)
-      //{
+      lock (ConsoleWrapper.Instance.Lock)
+      {
         ConsoleWrapper.Instance.SetCursorPosition(Left, Top);
         ConsoleWrapper.Instance.Write(b.Get(PositionV.Top, PositionH.Left).ToString());
         for (int i = 0; i < Width - 2; i++)
@@ -45,7 +45,7 @@ namespace CGui.Gui.Primitives
           ConsoleWrapper.Instance.Write(b.Get(PositionV.Bottom, PositionH.Middle).ToString());
         }
         ConsoleWrapper.Instance.Write(b.Get(PositionV.Bottom, PositionH.Right).ToString());
-      //}
+      }
     }
 
     protected override void Dispose(bool disposing)

@@ -9,28 +9,32 @@ using System.Threading.Tasks;
 
 namespace CGuiDemo
 {
+  class MyListItem : ListItem {
+    public string Value { get; set; }
+  }
+
   class Program
   {
-    static ListItem<string>[] list = {
-            new ListItem<string>() { DisplayText = "Test 1", Index = 0, Value = "Test Value 1" },
-            new ListItem<string>() { DisplayText = "Test 2", Index = 1, Value = "Test Value 2" },
-            new ListItem<string>() { DisplayText = "Test 3", Index = 2, Value = "Test Value 3" },
-            new ListItem<string>() { DisplayText = "Test 4", Index = 3, Value = "Test Value 4" },
-            new ListItem<string>() { DisplayText = "Test 5", Index = 4, Value = "Test Value 5" },
-            new ListItem<string>() { DisplayText = "Test 6", Index = 5, Value = "Test Value 6" },
-            new ListItem<string>() { DisplayText = "Test 7", Index = 6, Value = "Test Value 7" },
-            new ListItem<string>() { DisplayText = "Test 8 Loooooooooooooooooooooooooooooong text", Index = 7, Value = "Test Value 8" },
-            new ListItem<string>() { DisplayText = "Test 9", Index = 8, Value = "Test Value 9" },
-            new ListItem<string>() { DisplayText = "Test 10", Index = 9, Value = "Test Value 10" },
-            new ListItem<string>() { DisplayText = "Test 11", Index = 10, Value = "Test Value 11" },
-            new ListItem<string>() { DisplayText = "Test 12", Index = 11, Value = "Test Value 12" },
-            new ListItem<string>() { DisplayText = "Test 13", Index = 12, Value = "Test Value 13" },
-            new ListItem<string>() { DisplayText = "Test 14", Index = 13, Value = "Test Value 14" },
-            new ListItem<string>() { DisplayText = "Test 15", Index = 14, Value = "Test Value 15" },
-            new ListItem<string>() { DisplayText = "Test 16", Index = 15, Value = "Test Value 16" }
+    static MyListItem[] list = {
+            new MyListItem() { Value = "1", DisplayText = "Test 1", Index = 0},
+            new MyListItem() { Value = "2", DisplayText = "Test 2", Index = 1},
+            new MyListItem() { Value = "3", DisplayText = "Test 3", Index = 2},
+            new MyListItem() { Value = "4", DisplayText = "Input", Index = 3},
+            new MyListItem() { Value = "5", DisplayText = "Test 5", Index = 4},
+            new MyListItem() { Value = "6", DisplayText = "Test 6", Index = 5},
+            new MyListItem() { Value = "7", DisplayText = "Test 7", Index = 6},
+            new MyListItem() { Value = "8", DisplayText = "Test 8 Loooooooooooooooooooooooooooooong text", Index = 7},
+            new MyListItem() { Value = "9", DisplayText = "Test 9", Index = 8},
+            new MyListItem() { Value = "10", DisplayText = "Test 10", Index = 9},
+            new MyListItem() { Value = "11", DisplayText = "Test 11", Index = 10},
+            new MyListItem() { Value = "12", DisplayText = "Test 12", Index = 11},
+            new MyListItem() { Value = "13", DisplayText = "Test 13", Index = 12},
+            new MyListItem() { Value = "14", DisplayText = "Test 14", Index = 13},
+            new MyListItem() { Value = "15", DisplayText = "Test 15", Index = 14},
+            new MyListItem() { Value = "16", DisplayText = "I am scrollable too..", Index = 15}
         };
 
-    public static void HandleKey(ListItem<string> item)
+    public static void HandleKey(MyListItem item)
     {
       Debug.WriteLine(item.Value);
     }
@@ -40,53 +44,55 @@ namespace CGuiDemo
 
     static void Main(string[] args)
     {
+      Viewport mainView = new Viewport();
+      mainView.Height = 20;
+      mainView.Width = 60;
+
+
       h = new CGui.Gui.Header("Test App 1");
       h.TextAlignment = TextAlignment.Center;
       h.PadChar = '=';
-      h.Show();
+
+      mainView.Controls.Add(h);
 
       f = new CGui.Gui.Footer("Status bar here  ");
       f.TextAlignment = TextAlignment.Right;
       f.PadChar = '=';
-      f.Show();
 
-      //void processItem(ListItem<string> i, CGui.Gui.Picklist<string> parent)
-      //{
-      //    var rnd = new Random().Next(5000);
-      //    System.Threading.Thread.Sleep(rnd);
-      //    i.DisplayText += " - Updated";
-      //    parent.UpdateItem(i.Index);
-      //}
+      mainView.Controls.Add(f);
 
-      //var r = new Rectangle()
-      //{
-      //  Left = 0,
-      //  Top = 1,
-      //  Height = 8,
-      //  Width = 42,
-      //  BorderStyle = BorderStyle.QuadrupleDash
-      //};
-      //r.Show();
-
-      var l = new CGui.Gui.Picklist<string>(list, /* processItem*/ null)
+      var l = new CGui.Gui.Picklist<MyListItem>(list, /* processItem*/ null)
       {
         Left = 1,
         Top = 2,
-        Width = 40,
+        Width = 38,
         Height = 12,
         ShowScrollBar = true,
         TextAlignment = TextAlignment.Left,
         BorderStyle = BorderStyle.Single
       };
       l.OnItemKeyHandler += List_OnItemKeyHandler;
-      l.Show();
+
+      mainView.Controls.Add(l);
+
+      mainView.Show();
     }
 
-    private static bool List_OnItemKeyHandler(ConsoleKeyInfo key, ListItem<string> selectedItem, Picklist<string> parent)
+    private static bool List_OnItemKeyHandler(ConsoleKeyInfo key, MyListItem selectedItem, Picklist<MyListItem> parent)
     {
       if (key.Key == ConsoleKey.Enter)
       {
         Debug.WriteLine(selectedItem.Value);
+        if (selectedItem.Value == "4")
+        {
+          var input = new Input("Input some text. Hit escape to cancel.")
+          {
+            Top = 15
+          };
+          //Referencing the value is what triggers prompt
+          Debug.WriteLine(input.InputText);
+        }
+
       }
       if (key.Key == ConsoleKey.Escape)
       {

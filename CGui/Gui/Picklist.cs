@@ -9,15 +9,15 @@ using System.Threading;
 
 namespace CGui.Gui
 {
-  public class Picklist<T> : GuiElement, IDisposable
+  public class Picklist<T> : GuiElement, IDisposable where T : IListItem
   {
     public int Offset = 0;
     public bool ShowScrollBar { get; set; }
     private string ScrollBarChar = "█";
-    private IList<ListItem<T>> listItems = new List<ListItem<T>>();
+    private IList<T> listItems = new List<T>();
     public int SelectedItemIndex = 0;
     public int SelectionPosition = 0;
-    private Action<ListItem<T>, Picklist<T>> ProcessItem;
+    private Action<T, Picklist<T>> ProcessItem;
     public int TotalItems { get { return ListItems.Count(); } }
 
     public override int Top { get; set; }
@@ -26,7 +26,7 @@ namespace CGui.Gui
     public override int Height { get; set; }
 
     private int ListHeight { get { return this.Height - (BorderWidth * 2); } }
-    public IList<ListItem<T>> ListItems
+    public IList<T> ListItems
     {
       get => listItems;
       internal set
@@ -43,19 +43,19 @@ namespace CGui.Gui
       }
     }
 
-    public delegate bool OnItemKey(ConsoleKeyInfo key, ListItem<T> selectedItem, Picklist<T> parent);
+    public delegate bool OnItemKey(ConsoleKeyInfo key, T selectedItem, Picklist<T> parent);
     public event OnItemKey OnItemKeyHandler;
     private void ListItem_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
     {
       if (e.PropertyName == "DisplayText")
       {
         if (IsDisplayed) {
-          UpdateItem(((ListItem<T>)sender).Index + Offset);
+          UpdateItem(((ListItem)sender).Index + Offset);
         }
       }
     }
 
-    public Picklist(IList<ListItem<T>> items)
+    public Picklist(IList<T> items)
     {
       ListItems.Clear();
       if (items != null)
@@ -68,7 +68,7 @@ namespace CGui.Gui
       }
     }
 
-    public Picklist(IList<ListItem<T>> items, Action<ListItem<T>, Picklist<T>> processItem)
+    public Picklist(IList<T> items, Action<T, Picklist<T>> processItem)
     {
       ListItems.Clear();
       foreach (var i in items.OrderBy(x => x.Index).ToList())
@@ -106,7 +106,7 @@ namespace CGui.Gui
         new Thread(() =>
         {
           Thread.CurrentThread.IsBackground = true;
-          Parallel.ForEach<ListItem<T>>(this.ListItems, (item) =>
+          Parallel.ForEach<T>(this.ListItems, (item) =>
           {
             ProcessItem.Invoke(item, this);
           });
@@ -198,7 +198,7 @@ namespace CGui.Gui
             break;
 
           default:
-            if (SelectedItemIndex < this.TotalItems)
+            if (SelectedItemIndex < this.TotalItems && OnItemKeyHandler != null)
             {
               cont = OnItemKeyHandler(key, this.ListItems[SelectedItemIndex], this);
             }
@@ -227,7 +227,7 @@ namespace CGui.Gui
           ConsoleWrapper.Instance.ForegroundColor = this.SelectedForegroundColor;
           ConsoleWrapper.Instance.BackgroundColor = this.SelectedBackgroundColor;
         }
-        ConsoleWrapper.Instance.WriteLine(GetDisplayText(index + Offset));
+        ConsoleWrapper.Instance.Write(GetDisplayText(index + Offset));
         if (SelectionPosition == index)
         {
           ConsoleWrapper.Instance.ForegroundColor = this.ForegroundColor;
@@ -300,7 +300,7 @@ namespace CGui.Gui
       return result;
     }
 
-    public void UpdateList(IEnumerable<ListItem<T>> items)
+    public void UpdateList(IEnumerable<T> items)
     {
       ListItems.Clear();
       foreach (var i in items)

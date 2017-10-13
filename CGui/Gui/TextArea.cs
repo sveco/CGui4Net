@@ -125,7 +125,7 @@ namespace CGui.Gui
           ConsoleWrapper.Instance.BackgroundColor = this.BackgroundColor;
 
           ConsoleWrapper.Instance.SetCursorPosition(Left, Top + i);
-          ConsoleWrapper.Instance.WriteLine(GetDisplayText(Offset + i));
+          ConsoleWrapper.Instance.Write(GetDisplayText(Offset + i));
 
           ConsoleWrapper.Instance.SetCursorPosition(0, 0);
           ConsoleWrapper.Instance.RestoreColor();
@@ -175,9 +175,14 @@ namespace CGui.Gui
             break;
 
           case ConsoleKey.PageDown:
+            if (_lines.Count < Height) { break; }
             if (_lines.Count - 10 > Height + Offset)
             {
               Offset = Offset + 10;
+              RenderControl();
+            } else {
+              if(Offset < _lines.Count - Height)
+              Offset = Math.Max(0,_lines.Count - Height);
               RenderControl();
             }
             break;

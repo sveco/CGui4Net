@@ -119,6 +119,16 @@ namespace CGui.Gui
       get { return Console.WindowHeight; }
       set { Console.WindowHeight = value; }
     }
+    public int BufferWidth
+    {
+      get { return Console.BufferWidth; }
+      set { Console.BufferWidth = value; }
+    }
+    public int BufferHeight
+    {
+      get { return Console.BufferHeight; }
+      set { Console.BufferHeight = value; }
+    }
 
     public int LargestWindowWidth
     {
@@ -139,10 +149,7 @@ namespace CGui.Gui
       Console.SetCursorPosition(left, top);
     }
 
-    internal void Write(string value)
-    {
-      Console.Write(value);
-    }
+
 
     internal string ReadLine()
     {
@@ -162,8 +169,7 @@ namespace CGui.Gui
     static Regex regex = new Regex(regexExcape);
     private ConsoleColor previousForeground;
     private ConsoleColor previousBackground;
-
-    public void WriteLine(string value)
+    internal void Write(string value)
     {
       var chunks = Regex.Split(value, regexExcape, RegexOptions.ExplicitCapture);
       var matches = regex.Matches(value);
@@ -196,6 +202,10 @@ namespace CGui.Gui
         }
         Console.Write(chunks[i]);
       }
+    }
+    public void WriteLine(string value)
+    {
+      Write(value);
       Console.Write(Environment.NewLine);
     }
 

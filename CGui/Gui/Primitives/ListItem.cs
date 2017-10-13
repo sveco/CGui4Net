@@ -9,18 +9,30 @@ using System.Threading.Tasks;
 
 namespace CGui.Gui.Primitives
 {
-  public class ListItem<T> : INotifyPropertyChanged
+  public abstract class ListItem : INotifyPropertyChanged, IListItem
   {
-    public int Index;
+    private int _index;
+    public int Index {
+      get { return _index; }
+      set {
+        if (_index != value)
+        {
+          _index = value;
+          NotifyPropertyChanged();
+        }
+      }
+    }
     private string _displayText = string.Empty;
     public string DisplayText {
         get { return _displayText; }
         set {
+          if (_displayText != value)
+          {
             _displayText = value;
             NotifyPropertyChanged();
+          }
         }
     }
-    public T Value;
 
     public event PropertyChangedEventHandler PropertyChanged;
     private void NotifyPropertyChanged([CallerMemberName] String propertyName = "")

@@ -23,7 +23,7 @@ namespace CGui.Gui.Primitives
     int _top;
     public override int Top { get => _top; set => _top = value; }
     public override int Left { get => 0; set { } }
-    public override int Width { get => ConsoleWrapper.Instance.WindowWidth; set { } }
+    public override int Width { get => ConsoleWrapper.Instance.WindowWidth - 2; set { } }
     public override int Height { get => 1; set { } }
 
     protected string FormatDisplayText(string displayText)
@@ -32,15 +32,15 @@ namespace CGui.Gui.Primitives
       switch (this.TextAlignment)
       {
         case TextAlignment.Left:
-          result = result.PadRight(this.Width, this.PadChar);
+          result = result.PadRight(this.Width - this.BorderWidth + 2, this.PadChar);
           break;
 
         case TextAlignment.Right:
-          result = result.PadLeft(this.Width, this.PadChar);
+          result = result.PadLeft(this.Width - this.BorderWidth + 2, this.PadChar);
           break;
 
         case TextAlignment.Center:
-          result = result.PadBoth(this.Width, this.PadChar);
+          result = result.PadBoth(this.Width - this.BorderWidth + 2, this.PadChar);
           break;
       }
       return result;
@@ -57,7 +57,7 @@ namespace CGui.Gui.Primitives
         ConsoleWrapper.Instance.BackgroundColor = this.BackgroundColor;
 
         ConsoleWrapper.Instance.SetCursorPosition(this.Left, this.Top);
-        ConsoleWrapper.Instance.WriteLine(FormatDisplayText(DisplayText));
+        ConsoleWrapper.Instance.Write(FormatDisplayText(DisplayText));
 
         ConsoleWrapper.Instance.SetCursorPosition(0, 0);
         ConsoleWrapper.Instance.RestoreColor();

@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace CGui.Gui
 {
-  public class Viewport : GuiElement, IDisposable
+  public class Viewport : GuiElement
   {
     public Viewport()
     {
@@ -24,6 +24,7 @@ namespace CGui.Gui
       set
       {
         ConsoleWrapper.Instance.SetWindowSize(Math.Min(value, ConsoleWrapper.Instance.LargestWindowWidth), this.Height);
+        ConsoleWrapper.Instance.BufferWidth = Math.Min(value, ConsoleWrapper.Instance.LargestWindowWidth);
       }
     }
     public override int Height
@@ -35,6 +36,7 @@ namespace CGui.Gui
       set
       {
         ConsoleWrapper.Instance.SetWindowSize(this.Width, Math.Min(value, ConsoleWrapper.Instance.LargestWindowHeight));
+        ConsoleWrapper.Instance.BufferHeight = Math.Min(value, ConsoleWrapper.Instance.LargestWindowHeight);
       }
     }
 

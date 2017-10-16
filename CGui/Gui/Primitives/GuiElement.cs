@@ -21,12 +21,14 @@ namespace CGui.Gui.Primitives
     public ConsoleColor SelectedForegroundColor = ConsoleColor.DarkBlue;
     public ConsoleColor SelectedBackgroundColor = ConsoleColor.Green;
 
+    public char PadChar = ' ';
+
     public bool AutoRefresh = true;
 
-    abstract public int Top { get; set; }
-    abstract public int Left { get; set; }
-    abstract public int Width { get; set; }
-    abstract public int Height { get; set; }
+    public virtual int Top { get; set; }
+    public virtual int Left { get; set; }
+    public virtual int Width { get; set; }
+    public virtual int Height { get; set; }
 
     //public abstract void Show();
     public virtual void Show() {
@@ -35,8 +37,7 @@ namespace CGui.Gui.Primitives
         RenderControl();
         //EndRenderControl();
     }
-
-    private void RenderBorder()
+    public virtual void RenderBorder()
     {
       if (b.Style == BorderStyle.None)
         return;
@@ -56,27 +57,26 @@ namespace CGui.Gui.Primitives
 
     protected abstract void RenderControl();
 
-    public abstract void Refresh();
+    public virtual void Refresh()
+    {
+      Show();
+    }
 
     public TextAlignment TextAlignment = TextAlignment.Left;
     private Border b = new Border() { Style = BorderStyle.None, Weight = BorderWeight.Light };
-    protected int BorderWidth { get { return (b.Style == BorderStyle.None ? 0 : 1); } }
+    public int BorderWidth { get { return (b.Style == BorderStyle.None ? 0 : 1); } }
     public BorderStyle BorderStyle { get => b.Style; set => b.Style = value; }
     public BorderWeight BorderWeight { get => b.Weight; set => b.Weight = value; }
-
     public ConsoleColor BorderForegroundColor
     {
       get => b.ForegroundColor;
       set => b.ForegroundColor = value;
     }
-
     public ConsoleColor BorderBackgroundColor
     {
       get => b.BackgroundColor;
       set => b.BackgroundColor = value;
     }
-
-    public char PadChar = ' ';
     protected void ClearCurrentLine()
     {
         int currentLineCursor = ConsoleWrapper.Instance.CursorTop;
@@ -84,18 +84,15 @@ namespace CGui.Gui.Primitives
         ConsoleWrapper.Instance.Write(new string(' ', ConsoleWrapper.Instance.WindowWidth));
         ConsoleWrapper.Instance.SetCursorPosition(0, currentLineCursor);
     }
-
     public void Dispose()
     {
       Dispose(true);
       GC.SuppressFinalize(this);
     }
-
     ~GuiElement()
     {
       Dispose(false);
     }
-
     protected abstract void Dispose(bool disposing);
   }
 }

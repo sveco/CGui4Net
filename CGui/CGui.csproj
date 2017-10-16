@@ -64,10 +64,12 @@
     <Compile Include="Gui\Header.cs" />
     <Compile Include="Gui\Picklist.cs" />
     <Compile Include="Gui\Primitives\IListItem.cs" />
+    <Compile Include="Gui\Primitives\IScrollable.cs" />
     <Compile Include="Gui\Primitives\ListItem.cs" />
     <Compile Include="Gui\Footer.cs" />
     <Compile Include="Gui\Primitives\Row.cs" />
     <Compile Include="Gui\Primitives\Rectangle.cs" />
+    <Compile Include="Gui\Primitives\Scrollable.cs" />
     <Compile Include="Gui\StringExtensions.cs" />
     <Compile Include="Gui\TextArea.cs" />
     <Compile Include="Gui\Viewport.cs" />

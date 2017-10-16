@@ -105,7 +105,6 @@ namespace CGui.Gui
       get { return Console.BackgroundColor; }
       set { Console.BackgroundColor = value; }
     }
-
     public int CursorTop {
       get { return Console.CursorTop; }
       set { Console.CursorTop = value; }
@@ -130,7 +129,6 @@ namespace CGui.Gui
       get { return Console.BufferHeight; }
       set { Console.BufferHeight = value; }
     }
-
     public int LargestWindowWidth
     {
       get { return Console.LargestWindowWidth; }
@@ -144,13 +142,10 @@ namespace CGui.Gui
       get { return Console.CursorVisible; }
       set { Console.CursorVisible = value; }
     }
-
     internal void SetCursorPosition(int left, int top)
     {
       Console.SetCursorPosition(left, top);
     }
-
-
 
     internal string ReadLine()
     {

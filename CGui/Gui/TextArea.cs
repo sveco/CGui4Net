@@ -5,15 +5,10 @@ using System.Linq;
 
 namespace CGui.Gui
 {
-  public class TextArea : GuiElement, IDisposable
+  public class TextArea : Scrollable, IDisposable
   {
     private static readonly object lockObject = new object();
 
-    public bool ShowScrollbar = false;
-    private static readonly string ScrollBarChar = "█";
-
-    public override int Top { get; set; }
-    public override int Left { get; set; }
     private int _width = 0;
     public override int Width
     {
@@ -28,9 +23,6 @@ namespace CGui.Gui
       }
     }
 
-    public override int Height { get; set; }
-
-    public int Offset { get; internal set; }
     public bool WaitForInput { get; set; }
 
     public delegate bool OnItemKey(ConsoleKeyInfo key);
@@ -51,7 +43,7 @@ namespace CGui.Gui
     }
 
     private IList<string> _lines = new List<string>();
-    public int LinesCount { get { return _lines.Count(); } }
+    public override int TotalItems { get { return _lines.Count(); } }
 
     private IList<string> ParseText()
     {
@@ -69,11 +61,11 @@ namespace CGui.Gui
       this.Content = content;
       Offset = 0;
     }
-
+    /*
     protected string GetDisplayText(int index)
     {
       string result = _lines[index];
-      int desiredWith = (ShowScrollbar && Height < LinesCount) ? this.Width - 1 : this.Width;
+      int desiredWith = (ShowScrollBar && Height < LinesCount) ? this.Width - 1 : this.Width;
 
       switch (this.TextAlignment)
       {
@@ -90,7 +82,7 @@ namespace CGui.Gui
           break;
       }
 
-      if (ShowScrollbar && Height < LinesCount)
+      if (ShowScrollBar && Height < LinesCount)
       {
         var ratio = (double)Height / LinesCount;
         int size = (int)Math.Ceiling((double)Height * ratio);
@@ -111,12 +103,12 @@ namespace CGui.Gui
       }
       return result;
     }
-
+    */
     protected override void RenderControl()
     {
       lock (ConsoleWrapper.Instance.Lock)
       {
-        for (int i = 0; i < Math.Min(Height, _lines.Count - Offset); i++)
+        for (int i = 0; i < Math.Min(Height - (BorderWidth * 2), _lines.Count - Offset - (BorderWidth * 2)); i++)
         {
           ConsoleWrapper.Instance.CursorVisible = false;
           ConsoleWrapper.Instance.SaveColor();
@@ -124,8 +116,8 @@ namespace CGui.Gui
           ConsoleWrapper.Instance.ForegroundColor = this.ForegroundColor;
           ConsoleWrapper.Instance.BackgroundColor = this.BackgroundColor;
 
-          ConsoleWrapper.Instance.SetCursorPosition(Left, Top + i);
-          ConsoleWrapper.Instance.Write(GetDisplayText(Offset + i));
+          ConsoleWrapper.Instance.SetCursorPosition(Left + BorderWidth, Top + i + BorderWidth);
+          ConsoleWrapper.Instance.Write(GetDisplayText(Offset + i, _lines[Offset + i]));
 
           ConsoleWrapper.Instance.SetCursorPosition(0, 0);
           ConsoleWrapper.Instance.RestoreColor();
@@ -144,6 +136,7 @@ namespace CGui.Gui
 
     public override void Refresh()
     {
+      base.RenderBorder();
       RenderControl();
     }
 
@@ -179,12 +172,11 @@ namespace CGui.Gui
             if (_lines.Count - 10 > Height + Offset)
             {
               Offset = Offset + 10;
-              RenderControl();
             } else {
               if(Offset < _lines.Count - Height)
               Offset = Math.Max(0,_lines.Count - Height);
-              RenderControl();
             }
+            RenderControl();
             break;
 
           case ConsoleKey.Escape:

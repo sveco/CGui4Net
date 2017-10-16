@@ -15,12 +15,14 @@ namespace CGuiDemo
 
   class Program
   {
+    private static Viewport _mainview;
+
     static MyListItem[] list = {
             new MyListItem() { Value = "1", DisplayText = "Test 1", Index = 0},
             new MyListItem() { Value = "2", DisplayText = "Test 2", Index = 1},
             new MyListItem() { Value = "3", DisplayText = "Test 3", Index = 2},
             new MyListItem() { Value = "4", DisplayText = "Input", Index = 3},
-            new MyListItem() { Value = "5", DisplayText = "Test 5", Index = 4},
+            new MyListItem() { Value = "5", DisplayText = "Text Area", Index = 4},
             new MyListItem() { Value = "6", DisplayText = "Test 6", Index = 5},
             new MyListItem() { Value = "7", DisplayText = "Test 7", Index = 6},
             new MyListItem() { Value = "8", DisplayText = "Test 8 Loooooooooooooooooooooooooooooong text", Index = 7},
@@ -44,22 +46,22 @@ namespace CGuiDemo
 
     static void Main(string[] args)
     {
-      Viewport mainView = new Viewport();
-      mainView.Height = 20;
-      mainView.Width = 60;
+      _mainview = new Viewport();
+      _mainview.Height = 20;
+      _mainview.Width = 100;
 
 
       h = new CGui.Gui.Header("Test App 1");
       h.TextAlignment = TextAlignment.Center;
       h.PadChar = '=';
 
-      mainView.Controls.Add(h);
+      _mainview.Controls.Add(h);
 
       f = new CGui.Gui.Footer("Status bar here  ");
       f.TextAlignment = TextAlignment.Right;
       f.PadChar = '=';
 
-      mainView.Controls.Add(f);
+      _mainview.Controls.Add(f);
 
       var l = new CGui.Gui.Picklist<MyListItem>(list, /* processItem*/ null)
       {
@@ -74,10 +76,9 @@ namespace CGuiDemo
         BorderForegroundColor = ConsoleColor.DarkMagenta
       };
       l.OnItemKeyHandler += List_OnItemKeyHandler;
+      _mainview.Controls.Add(l);
 
-      mainView.Controls.Add(l);
-
-      mainView.Show();
+      _mainview.Show();
     }
 
     private static bool List_OnItemKeyHandler(ConsoleKeyInfo key, MyListItem selectedItem, Picklist<MyListItem> parent)
@@ -94,7 +95,25 @@ namespace CGuiDemo
           //Referencing the value is what triggers prompt
           Debug.WriteLine(input.InputText);
         }
-
+        else if (selectedItem.Value == "5")
+        {
+          TextArea text = new TextArea(@"Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.")
+          {
+            Top = 2,
+            Left = 50,
+            Height = 12,
+            Width = 20,
+            ShowScrollBar = true,
+            WaitForInput = true,
+            BorderStyle = BorderStyle.Double
+          };
+          text.Show();
+          if (_mainview != null)
+          {
+            _mainview.Refresh();
+          }
+        }
       }
       if (key.Key == ConsoleKey.Escape)
       {

@@ -1,33 +1,19 @@
-﻿using CGui.Gui.Primitives;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Diagnostics;
 using System.Linq;
-using System.Threading.Tasks;
 using System.Threading;
+using System.Threading.Tasks;
+using CGui.Gui.Primitives;
 
 namespace CGui.Gui
 {
-  public class Picklist<T> : GuiElement, IDisposable where T : IListItem
+  public class Picklist<T> : Scrollable, IDisposable where T : IListItem
   {
-    public int Offset = 0;
-    public bool ShowScrollBar { get; set; }
-    private string ScrollBarChar = "█";
-    private string ScrollBarCharInactive = "▒";
-    private string ScrollBarCharUp = "▲";
-    private string ScrollBarCharDown = "▼";
-
     private IList<T> listItems = new List<T>();
     public int SelectedItemIndex = 0;
     public int SelectionPosition = 0;
     private Action<T, Picklist<T>> ProcessItem;
-    public int TotalItems { get { return ListItems.Count(); } }
-
-    public override int Top { get; set; }
-    public override int Left { get; set; }
-    public override int Width { get; set; }
-    public override int Height { get; set; }
+    public override int TotalItems { get { return ListItems.Count(); } }
 
     private int ListHeight { get { return this.Height - (BorderWidth * 2); } }
     public IList<T> ListItems
@@ -53,7 +39,8 @@ namespace CGui.Gui
     {
       if (e.PropertyName == "DisplayText")
       {
-        if (IsDisplayed) {
+        if (IsDisplayed)
+        {
           UpdateItem(((ListItem)sender).Index + Offset);
         }
       }
@@ -100,6 +87,7 @@ namespace CGui.Gui
 
     public override void Refresh()
     {
+      base.RenderBorder();
       this.RenderControl();
     }
 
@@ -121,7 +109,7 @@ namespace CGui.Gui
       do
       {
         var key = ConsoleWrapper.Instance.ReadKey(true);
-        var prevItem = SelectionPosition;
+        var prevSelectionPosition = SelectionPosition;
         switch (key.Key)
         {
           case ConsoleKey.UpArrow:
@@ -137,7 +125,7 @@ namespace CGui.Gui
             else
             {
               SelectionPosition--;
-              RenderItem(prevItem);
+              RenderItem(prevSelectionPosition);
               RenderItem(SelectionPosition);
             }
 
@@ -152,28 +140,39 @@ namespace CGui.Gui
             else
             {
               SelectionPosition++;
-              RenderItem(prevItem);
+              RenderItem(prevSelectionPosition);
               RenderItem(SelectionPosition);
             }
             break;
 
           case ConsoleKey.PageUp:
             if (SelectedItemIndex > 10) { SelectedItemIndex -= 10; } else { SelectedItemIndex = 0; }
-            if (SelectionPosition - 10 < 0)
+            if (SelectionPosition > 10)
             {
-              SelectionPosition = SelectedItemIndex;
-              if (Offset >= 10)
-              {
-                Offset -= 10;
-              }
-              else { Offset = 0; }
-              RenderControl();
+
+              SelectionPosition -= 10;
+              RenderItem(prevSelectionPosition);
+              RenderItem(SelectionPosition);
+
             }
             else
             {
-              SelectionPosition -= 10;
-              RenderItem(prevItem);
-              RenderItem(SelectionPosition);
+              if (Offset == 0)
+              {
+                SelectionPosition = 0;
+                RenderItem(prevSelectionPosition);
+                RenderItem(SelectionPosition);
+              }
+              else
+              {
+                Offset -= 10;
+                if (Offset < 0)
+                {
+                  SelectionPosition += Offset;
+                  Offset = 0;
+                }
+                RenderControl();
+              }
             }
             break;
 
@@ -195,7 +194,7 @@ namespace CGui.Gui
             else
             {
               SelectionPosition = Math.Min(SelectionPosition + 10, TotalItems - 1);
-              RenderItem(prevItem);
+              RenderItem(prevSelectionPosition);
               RenderItem(SelectionPosition);
             }
             break;
@@ -230,7 +229,7 @@ namespace CGui.Gui
           ConsoleWrapper.Instance.ForegroundColor = this.SelectedForegroundColor;
           ConsoleWrapper.Instance.BackgroundColor = this.SelectedBackgroundColor;
         }
-        ConsoleWrapper.Instance.Write(GetDisplayText(index + Offset));
+        ConsoleWrapper.Instance.Write(GetDisplayText(index + Offset, ListItems[index + Offset].DisplayText));
         if (SelectionPosition == index)
         {
           ConsoleWrapper.Instance.ForegroundColor = this.ForegroundColor;
@@ -249,7 +248,7 @@ namespace CGui.Gui
         RenderItem(Index);
       }
     }
-
+    /*
     protected string GetDisplayText(int index)
     {
       string result = ListItems[index].DisplayText;
@@ -314,7 +313,7 @@ namespace CGui.Gui
 
       return result;
     }
-
+    */
     public void UpdateList(IEnumerable<T> items)
     {
       ListItems.Clear();

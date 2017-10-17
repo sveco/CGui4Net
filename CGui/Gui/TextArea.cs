@@ -56,6 +56,7 @@ namespace CGui.Gui
       return _lines;
     }
 
+    public TextArea() { }
     public TextArea(string content)
     {
       this.Content = content;

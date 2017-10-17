@@ -7,12 +7,14 @@ using System.Threading.Tasks;
 
 namespace CGui.Gui
 {
-    public class Footer : Row
+  public class Footer : Row
+  {
+    public override int Top { get => ConsoleWrapper.Instance.WindowHeight - 1; set { } }
+
+    public Footer() { }
+    public Footer(string text)
     {
-        public override int Top { get => ConsoleWrapper.Instance.WindowHeight - 1; set { } }
-        public Footer(string text)
-        {
-            DisplayText = text;
-        }
+      DisplayText = text;
     }
+  }
 }

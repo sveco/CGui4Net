@@ -13,22 +13,68 @@ namespace CGui.Gui.Primitives
   /// </summary>
   public abstract class GuiElement : IDisposable
   {
+    private static int AbsWidth(int width)
+    {
+      if (width < 0) { return Console.WindowWidth + width; }
+      return width;
+    }
+
+    private static int AbsHeight(int height)
+    {
+      if (height < 0) { return Console.WindowHeight + height; }
+      return height;
+    }
+
+    public string Name { get; set; }
     public bool IsDisplayed { get; set; }
 
-    public ConsoleColor ForegroundColor = ConsoleColor.White;
-    public ConsoleColor BackgroundColor = ConsoleColor.Black;
+    private ConsoleColor foregroundColor = ConsoleColor.White;
+    private ConsoleColor backgroundColor = ConsoleColor.Black;
+    public ConsoleColor ForegroundColor { get => foregroundColor; set => foregroundColor = value; }
+    public ConsoleColor BackgroundColor { get => backgroundColor; set => backgroundColor = value; }
 
-    public ConsoleColor SelectedForegroundColor = ConsoleColor.DarkBlue;
-    public ConsoleColor SelectedBackgroundColor = ConsoleColor.Green;
+    public ConsoleColor selectedForegroundColor = ConsoleColor.DarkBlue;
+    public ConsoleColor selectedBackgroundColor = ConsoleColor.Green;
+    public ConsoleColor SelectedForegroundColor { get => selectedForegroundColor; set => selectedForegroundColor = value; }
+    public ConsoleColor SelectedBackgroundColor { get => selectedBackgroundColor; set => selectedBackgroundColor = value; }
 
-    public char PadChar = ' ';
 
-    public bool AutoRefresh = true;
+    private char _padChar = ' ';
+    public char PadChar { get => _padChar; set => _padChar = value; }
 
-    public virtual int Top { get; set; }
-    public virtual int Left { get; set; }
-    public virtual int Width { get; set; }
-    public virtual int Height { get; set; }
+    private bool autoRefresh = true;
+    public bool AutoRefresh { get => autoRefresh; set => autoRefresh = value; }
+
+    private int _top = 0;
+    public virtual int Top {
+      get => _top;
+      set {
+        _top = value;
+        if (_top < 0) { _top = 0; }
+      }}
+
+    private int _left = 0;
+    public virtual int Left {
+      get => _left;
+      set {
+        _left = value;
+        if (_left < 0) { _left = 0; }
+      }
+    }
+    private int _width = 10;
+    public virtual int Width {
+      get => _width;
+      set {
+        _width = AbsWidth(value);
+      }
+    }
+    private int _height = 10;
+    public virtual int Height {
+      get => _height;
+      set {
+        _height = AbsHeight(value);
+      }
+    }
 
     //public abstract void Show();
     public virtual void Show() {
@@ -37,6 +83,13 @@ namespace CGui.Gui.Primitives
         RenderControl();
         //EndRenderControl();
     }
+    public virtual void Clear() {
+      for(int row = 0; row < this.Height; row ++)
+      {
+        ConsoleWrapper.Instance.Write(string.Empty.PadLeft(this.Width));
+      }
+    }
+
     public virtual void RenderBorder()
     {
       if (b.Style == BorderStyle.None)

@@ -10,10 +10,12 @@ namespace CGui.Gui
   public class Input : Row
   {
     public string Prompt { get; set; }
+
+    public Input() { }
+
     public Input(string prompt)
     {
       DisplayText = prompt;
-
     }
 
     public string InputText

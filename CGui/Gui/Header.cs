@@ -7,12 +7,14 @@ using System.Threading.Tasks;
 
 namespace CGui.Gui
 {
-    public class Header : Row
+  public class Header : Row
+  {
+    public override int Top { get => 0; set { } }
+
+    public Header() { }
+    public Header(string text)
     {
-        public override int Top { get => 0; set { }}
-        public Header (string text)
-        {
-            DisplayText = text;
-        }
+      DisplayText = text;
     }
+  }
 }

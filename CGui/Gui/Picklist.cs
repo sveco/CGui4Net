@@ -45,7 +45,7 @@ namespace CGui.Gui
         }
       }
     }
-
+    public Picklist() { }
     public Picklist(IList<T> items)
     {
       ListItems.Clear();
@@ -248,72 +248,7 @@ namespace CGui.Gui
         RenderItem(Index);
       }
     }
-    /*
-    protected string GetDisplayText(int index)
-    {
-      string result = ListItems[index].DisplayText;
 
-      switch (this.TextAlignment)
-      {
-        case TextAlignment.Left:
-          result = result.PadRight(this.Width-1 - (BorderWidth * 2), this.PadChar);
-          break;
-
-        case TextAlignment.Right:
-          result = result.PadLeft(this.Width-1 - (BorderWidth *2), this.PadChar);
-          break;
-
-        case TextAlignment.Center:
-          result = result.PadBoth(this.Width-1 - (BorderWidth * 2), this.PadChar);
-          break;
-      }
-
-      if (result.Length > this.Width - 1)
-      {
-        if (result.Length > 4)
-        {
-          result = result.Substring(0, this.Width - 4 - (BorderWidth * 2)) + "...";
-        }
-        else
-        {
-          result = result.Substring(0, this.Width - (BorderWidth * 2));
-        }
-      }
-
-      var visibleHeight = Height - (BorderWidth * 2);
-      if (ShowScrollBar && visibleHeight > 3 && visibleHeight < TotalItems)
-      {
-        var ratio = (double)visibleHeight / TotalItems;
-        int size = (int)Math.Ceiling(((double)visibleHeight) * ratio) - 2;
-        var top = Math.Ceiling(Offset * ratio);
-
-        bool first = (index - Offset == 0);
-        bool last = index - Offset == visibleHeight - 1;
-
-        bool show = index - Offset > top
-            && index - Offset < size + top;
-
-        if (first)
-        {
-          result = result + ConsoleWrapper.ColorReset + ScrollBarCharUp;
-        }
-        else if (last)
-        {
-          result = result + ConsoleWrapper.ColorReset + ScrollBarCharDown;
-        }
-        else if (show)
-        {
-          result = result + ConsoleWrapper.ColorReset + ScrollBarChar;
-        }
-        else
-        {
-          result = result + ConsoleWrapper.ColorReset + ScrollBarCharInactive;
-        }
-      }
-
-      return result;
-    }
-    */
     public void UpdateList(IEnumerable<T> items)
     {
       ListItems.Clear();
@@ -330,11 +265,11 @@ namespace CGui.Gui
       if (_disposed)
         return;
 
-      if (disposing)
-      {
-        // free other managed objects that implement
-        // IDisposable only
-      }
+      //if (disposing)
+      //{
+      //  // free other managed objects that implement
+      //  // IDisposable only
+      //}
 
       // release any unmanaged objects
       // set the object references to null

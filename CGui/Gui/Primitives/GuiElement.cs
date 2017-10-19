@@ -28,8 +28,8 @@ namespace CGui.Gui.Primitives
     public string Name { get; set; }
     public bool IsDisplayed { get; set; }
 
-    private ConsoleColor foregroundColor = ConsoleColor.White;
-    private ConsoleColor backgroundColor = ConsoleColor.Black;
+    private ConsoleColor foregroundColor = ConsoleWrapper.Instance.ForegroundColor;
+    private ConsoleColor backgroundColor = ConsoleWrapper.Instance.BackgroundColor;
     public ConsoleColor ForegroundColor { get => foregroundColor; set => foregroundColor = value; }
     public ConsoleColor BackgroundColor { get => backgroundColor; set => backgroundColor = value; }
 

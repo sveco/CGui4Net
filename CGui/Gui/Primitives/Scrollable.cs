@@ -51,14 +51,14 @@ namespace CGui.Gui.Primitives
       if (ShowScrollBar && visibleHeight > 3 && visibleHeight < TotalItems)
       {
         var ratio = (double)visibleHeight / TotalItems;
-        int size = (int)Math.Ceiling(((double)visibleHeight) * ratio) - 2;
+        int size = Math.Max((int)Math.Ceiling(((double)visibleHeight) * ratio) - 2, 1);
         var top = Math.Ceiling(Offset * ratio);
 
         bool first = (Index - Offset == 0);
         bool last = Index - Offset == visibleHeight - 1;
 
         bool show = Index - Offset > top
-            && Index - Offset < size + top;
+            && Index - Offset <= size + top;
 
         if (first)
         {

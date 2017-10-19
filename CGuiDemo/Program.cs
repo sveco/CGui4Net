@@ -23,7 +23,7 @@ namespace CGuiDemo
             new MyListItem() { Value = "3", DisplayText = "Test 3", Index = 2},
             new MyListItem() { Value = "4", DisplayText = "Input", Index = 3},
             new MyListItem() { Value = "5", DisplayText = "Text Area", Index = 4},
-            new MyListItem() { Value = "6", DisplayText = "Test 6", Index = 5},
+            new MyListItem() { Value = "6", DisplayText = "Dialog", Index = 5},
             new MyListItem() { Value = "7", DisplayText = "Test 7", Index = 6},
             new MyListItem() { Value = "8", DisplayText = "Test 8 Loooooooooooooooooooooooooooooong text", Index = 7},
             new MyListItem() { Value = "9", DisplayText = "Test 9", Index = 8},
@@ -63,7 +63,7 @@ namespace CGuiDemo
 
       _mainview.Controls.Add(f);
 
-      var l = new CGui.Gui.Picklist<MyListItem>(list, /* processItem*/ null)
+      var l = new CGui.Gui.Picklist<MyListItem>(list, null)
       {
         Left = 1,
         Top = 2,
@@ -108,12 +108,31 @@ Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor 
             WaitForInput = true,
             BorderStyle = BorderStyle.Double
           };
+
           text.Show();
+
           if (_mainview != null)
           {
             _mainview.Refresh();
           }
         }
+        else if (selectedItem.Value == "6")
+        {
+          Dictionary<string, object> choices = new Dictionary<string, object>();
+          choices.Add("Yes", 1);
+          choices.Add("No", 2);
+          choices.Add("Maybe", 3);
+          var dialog = new Dialog("Are you ok?", choices);
+
+          dialog.Show();
+
+          if (_mainview != null)
+          {
+            _mainview.Refresh();
+          }
+
+        }
+
       }
       if (key.Key == ConsoleKey.Escape)
       {

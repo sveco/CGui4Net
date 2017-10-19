@@ -109,20 +109,20 @@ namespace CGui.Gui
     {
       lock (ConsoleWrapper.Instance.Lock)
       {
+        ConsoleWrapper.Instance.CursorVisible = false;
+        ConsoleWrapper.Instance.SaveColor();
+
+        ConsoleWrapper.Instance.ForegroundColor = this.ForegroundColor;
+        ConsoleWrapper.Instance.BackgroundColor = this.BackgroundColor;
+
         for (int i = 0; i < Math.Min(Height - (BorderWidth * 2), _lines.Count - Offset - (BorderWidth * 2)); i++)
         {
-          ConsoleWrapper.Instance.CursorVisible = false;
-          ConsoleWrapper.Instance.SaveColor();
-
-          ConsoleWrapper.Instance.ForegroundColor = this.ForegroundColor;
-          ConsoleWrapper.Instance.BackgroundColor = this.BackgroundColor;
-
           ConsoleWrapper.Instance.SetCursorPosition(Left + BorderWidth, Top + i + BorderWidth);
           ConsoleWrapper.Instance.Write(GetDisplayText(Offset + i, _lines[Offset + i]));
-
-          ConsoleWrapper.Instance.SetCursorPosition(0, 0);
-          ConsoleWrapper.Instance.RestoreColor();
         }
+
+        ConsoleWrapper.Instance.SetCursorPosition(0, 0);
+        ConsoleWrapper.Instance.RestoreColor();
       }
     }
 

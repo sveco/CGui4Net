@@ -109,7 +109,7 @@ namespace CGui.Gui
       do
       {
         var key = ConsoleWrapper.Instance.ReadKey(true);
-        var prevSelectionPosition = SelectionPosition;
+        var prevSelectionPosition = Math.Max(SelectionPosition, 0);
         switch (key.Key)
         {
           case ConsoleKey.UpArrow:

@@ -1,34 +1,29 @@
-﻿using CGui.Gui.Primitives;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-
-namespace CGui.Gui
+﻿namespace CGui.Gui
 {
+  using System;
+  using System.Collections.Generic;
+  using System.Linq;
+  using CGui.Gui.Primitives;
+
+  /// <summary>
+  /// Defines the <see cref="TextArea" />
+  /// </summary>
   public class TextArea : Scrollable, IDisposable
   {
-    private static readonly object lockObject = new object();
+
+    private string _content;
+    private bool _disposed;
+
+    /// <summary>
+    /// Lines of text
+    /// </summary>
+    private IList<string> _lines = new List<string>();
 
     private int _width = 0;
-    public override int Width
-    {
-      get { return _width; }
-      set
-      {
-        _width = value;
-        if (value > 0)
-        {
-          ParseText();
-        }
-      }
-    }
 
-    public bool WaitForInput { get; set; }
-
-    public delegate bool OnItemKey(ConsoleKeyInfo key);
-    public event OnItemKey OnItemKeyHandler;
-
-    string _content;
+    /// <summary>
+    /// Gets or sets the Content of <see cref="TextArea"/>
+    /// </summary>
     public string Content
     {
       get { return _content; }
@@ -42,26 +37,130 @@ namespace CGui.Gui
       }
     }
 
-    private IList<string> _lines = new List<string>();
-    public override int TotalItems { get { return _lines.Count(); } }
-
-    private IList<string> ParseText()
+    /// <summary>
+    /// Total number of displayed lines of text.
+    /// </summary>
+    public override int TotalItems
     {
-      _lines = new List<string>();
-      if (!string.IsNullOrWhiteSpace(Content))
-      {
-        _lines = Content.Split(this.Width - 5).ToList();
-      }
-
-      return _lines;
+      get { return _lines.Count(); }
     }
 
-    public TextArea() { }
+    /// <summary>
+    /// Flag to indicate that TextArea should capture keyboard events.
+    /// </summary>
+    public bool WaitForInput { get; set; }
+
+    /// <summary>
+    /// Gets or sets the Width
+    /// </summary>
+    public override int Width
+    {
+      get { return _width; }
+      set
+      {
+        _width = value;
+        if (value > 0)
+        {
+          ParseText();
+        }
+      }
+    }
+    /// <summary>
+    /// Initializes a new instance of the <see cref="TextArea"/> class.
+    /// </summary>
+    public TextArea()
+    {
+    }
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="TextArea"/> class.
+    /// </summary>
+    /// <param name="content">The <see cref="string"/></param>
     public TextArea(string content)
     {
       this.Content = content;
       Offset = 0;
     }
+
+    /// <summary>
+    /// The OnItemKey
+    /// </summary>
+    /// <param name="key">The <see cref="ConsoleKeyInfo"/></param>
+    /// <returns>The <see cref="bool"/></returns>
+    public delegate bool OnItemKey(ConsoleKeyInfo key);
+
+    /// <summary>
+    /// Defines the OnItemKeyHandler
+    /// </summary>
+    public event OnItemKey OnItemKeyHandler;
+    /// <summary>
+    /// Refreshes the <see cref="GuiElement"/>
+    /// </summary>
+    public override void Refresh()
+    {
+      base.RenderBorder();
+      RenderControl();
+    }
+
+    /// <summary>
+    /// Scrolls down the text.
+    /// </summary>
+    /// <param name="Step">The <see cref="int"/></param>
+    public override void ScrollDown(int Step)
+    {
+      if (_lines.Count < Height) { return; }
+      if (_lines.Count - Step > Height + Offset)
+      {
+        Offset = Offset + Step;
+      }
+      else
+      {
+        if (Offset < _lines.Count - Height)
+          Offset = Math.Max(0, _lines.Count - Height);
+      }
+      RenderControl();
+    }
+
+    /// <summary>
+    /// Scrolls up the text.
+    /// </summary>
+    /// <param name="Step">The <see cref="int"/></param>
+    public override void ScrollUp(int Step)
+    {
+      if (Offset > Step) { Offset = Offset - Step; } else { Offset = 0; }
+      RenderControl();
+    }
+
+    /// <summary>
+    /// The Show
+    /// </summary>
+    public override void Show()
+    {
+      base.Show();
+      if (this.WaitForInput)
+      {
+        InputLoop();
+      }
+    }
+
+    /// <summary>
+    /// The Dispose
+    /// </summary>
+    /// <param name="disposing">The <see cref="bool"/></param>
+    protected override void Dispose(bool disposing)
+    {
+      if (_disposed)
+        return;
+
+      _content = null;
+      _lines = null;
+
+      _disposed = true;
+    }
+
+    /// <summary>
+    /// The RenderControl
+    /// </summary>
     protected override void RenderControl()
     {
       lock (ConsoleWrapper.Instance.Lock)
@@ -83,21 +182,9 @@ namespace CGui.Gui
       }
     }
 
-    public override void Show()
-    {
-      base.Show();
-      if (this.WaitForInput)
-      {
-        InputLoop();
-      }
-    }
-
-    public override void Refresh()
-    {
-      base.RenderBorder();
-      RenderControl();
-    }
-
+    /// <summary>
+    /// Handles keyboards events.
+    /// </summary>
     private void InputLoop()
     {
       bool cont = true;
@@ -138,37 +225,19 @@ namespace CGui.Gui
       } while (cont);
     }
 
-    bool _disposed;
-    protected override void Dispose(bool disposing)
+    /// <summary>
+    /// Parses text to lines.
+    /// </summary>
+    /// <returns>The <see cref="IList{string}"/></returns>
+    private IList<string> ParseText()
     {
-      if (_disposed)
-        return;
-
-      _content = null;
-      _lines = null;
-
-      _disposed = true;
-    }
-
-    public override void ScrollUp(int Step)
-    {
-      if (Offset > Step) { Offset = Offset - Step; } else { Offset = 0; }
-      RenderControl();
-    }
-
-    public override void ScrollDown(int Step)
-    {
-      if (_lines.Count < Height) { return; }
-      if (_lines.Count - 10 > Height + Offset)
+      _lines = new List<string>();
+      if (!string.IsNullOrWhiteSpace(Content))
       {
-        Offset = Offset + 10;
+        _lines = Content.Split(this.Width - 5).ToList();
       }
-      else
-      {
-        if (Offset < _lines.Count - Height)
-          Offset = Math.Max(0, _lines.Count - Height);
-      }
-      RenderControl();
+
+      return _lines;
     }
   }
 }

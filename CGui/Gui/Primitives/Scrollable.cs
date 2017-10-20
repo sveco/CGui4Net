@@ -1,23 +1,56 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace CGui.Gui.Primitives
+﻿namespace CGui.Gui.Primitives
 {
+  using System;
+
+  /// <summary>
+  /// Defines the <see cref="Scrollable" /> abstract class.
+  /// </summary>
   public abstract class Scrollable : GuiElement, IScrollable
   {
+    /// <summary>
+    /// Defines the current position character
+    /// </summary>
     private string ScrollBarChar = "█";
+
+    /// <summary>
+    /// Defines the scrollbar placeholder character
+    /// </summary>
     private string ScrollBarCharInactive = "▒";
+
+    /// <summary>
+    /// Defines the character to thow first on scrollbar
+    /// </summary>
     private string ScrollBarCharUp = "▲";
+
+    /// <summary>
+    /// Defines the character to thow last on scrollbar
+    /// </summary>
     private string ScrollBarCharDown = "▼";
-    
+
+    /// <summary>
+    /// Gets or sets the Offset
+    /// </summary>
     public int Offset { get; set; }
+
+    private int _defaultPage = 10;
+    public int DefaultPage { get => _defaultPage; set => _defaultPage = value; }
+
+    /// <summary>
+    /// Gets the total items to scroll
+    /// </summary>
     public abstract int TotalItems { get; }
 
+    /// <summary>
+    /// Gets or sets a value indicating whether to show scrollbar
+    /// </summary>
     public bool ShowScrollBar { get; set; }
 
+    /// <summary>
+    /// Returns formatted display text for item including scrollbar
+    /// </summary>
+    /// <param name="Index">The zero-based <see cref="int"/>index of item</param>
+    /// <param name="DisplayText">The <see cref="string"/> unformatted display text</param>
+    /// <returns>The <see cref="string"/></returns>
     protected string GetDisplayText(int Index, string DisplayText)
     {
       switch (this.TextAlignment)
@@ -80,5 +113,15 @@ namespace CGui.Gui.Primitives
 
       return DisplayText;
     }
+
+    public virtual void ScrollUp() {
+      ScrollUp(1);
+    }
+    public virtual void ScrollDown()
+    {
+      ScrollDown(1);
+    }
+    public abstract void ScrollUp(int Step);
+    public abstract void ScrollDown(int Step);
   }
 }

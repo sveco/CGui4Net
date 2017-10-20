@@ -113,90 +113,18 @@ namespace CGui.Gui
         switch (key.Key)
         {
           case ConsoleKey.UpArrow:
-            if (SelectedItemIndex > 0) { SelectedItemIndex--; }
-            if (SelectionPosition - 1 < 0)
-            {
-              if (Offset > 0)
-              {
-                Offset--;
-                RenderControl();
-              }
-            }
-            else
-            {
-              SelectionPosition--;
-              RenderItem(prevSelectionPosition);
-              RenderItem(SelectionPosition);
-            }
-
+            ScrollUp();
             break;
           case ConsoleKey.DownArrow:
-            if (SelectedItemIndex + 1 < TotalItems) { SelectedItemIndex++; } else { break; }
-            if (SelectionPosition + 1 >= ListHeight)
-            {
-              if (Offset + ListHeight < TotalItems) { Offset++; }
-              RenderControl();
-            }
-            else
-            {
-              SelectionPosition++;
-              RenderItem(prevSelectionPosition);
-              RenderItem(SelectionPosition);
-            }
+            ScrollDown();
             break;
 
           case ConsoleKey.PageUp:
-            if (SelectedItemIndex > 10) { SelectedItemIndex -= 10; } else { SelectedItemIndex = 0; }
-            if (SelectionPosition > 10)
-            {
-
-              SelectionPosition -= 10;
-              RenderItem(prevSelectionPosition);
-              RenderItem(SelectionPosition);
-
-            }
-            else
-            {
-              if (Offset == 0)
-              {
-                SelectionPosition = 0;
-                RenderItem(prevSelectionPosition);
-                RenderItem(SelectionPosition);
-              }
-              else
-              {
-                Offset -= 10;
-                if (Offset < 0)
-                {
-                  SelectionPosition += Offset;
-                  Offset = 0;
-                }
-                RenderControl();
-              }
-            }
+            ScrollUp(DefaultPage);
             break;
 
           case ConsoleKey.PageDown:
-            if (SelectedItemIndex + 10 < TotalItems) { SelectedItemIndex += 10; } else { SelectedItemIndex = TotalItems - 1; }
-            if (SelectionPosition + 10 >= Math.Min(ListHeight, TotalItems - 1))
-            {
-              var prevSel = SelectionPosition;
-              SelectionPosition = Math.Min(ListHeight - 1, TotalItems - 1);
-              Offset += 10 - (SelectionPosition - prevSel);
-
-              if (Offset > TotalItems - ListHeight)
-              {
-                Offset = TotalItems - ListHeight;
-                if (Offset < 0) { Offset = 0; }
-              }
-              RenderControl();
-            }
-            else
-            {
-              SelectionPosition = Math.Min(SelectionPosition + 10, TotalItems - 1);
-              RenderItem(prevSelectionPosition);
-              RenderItem(SelectionPosition);
-            }
+            ScrollDown(DefaultPage);
             break;
 
           default:
@@ -276,6 +204,64 @@ namespace CGui.Gui
       listItems = null;
 
       _disposed = true;
+    }
+
+    public override void ScrollUp(int Step)
+    {
+      var prevSelectionPosition = Math.Max(SelectionPosition, 0);
+      if (SelectedItemIndex > Step) { SelectedItemIndex -= Step; } else { SelectedItemIndex = 0; }
+      if (SelectionPosition > Step)
+      {
+
+        SelectionPosition -= Step;
+        RenderItem(prevSelectionPosition);
+        RenderItem(SelectionPosition);
+
+      }
+      else
+      {
+        if (Offset == 0)
+        {
+          SelectionPosition = 0;
+          RenderItem(prevSelectionPosition);
+          RenderItem(SelectionPosition);
+        }
+        else
+        {
+          Offset -= Step;
+          if (Offset < 0)
+          {
+            SelectionPosition += Offset;
+            Offset = 0;
+          }
+          RenderControl();
+        }
+      }
+    }
+
+    public override void ScrollDown(int Step)
+    {
+      var prevSelectionPosition = Math.Max(SelectionPosition, 0);
+      if (SelectedItemIndex + Step < TotalItems) { SelectedItemIndex += Step; } else { SelectedItemIndex = TotalItems - 1; }
+      if (SelectionPosition + Step >= Math.Min(ListHeight, TotalItems - 1))
+      {
+        var prevSel = SelectionPosition;
+        SelectionPosition = Math.Min(ListHeight - 1, TotalItems - 1);
+        Offset += Step - (SelectionPosition - prevSel);
+
+        if (Offset > TotalItems - ListHeight)
+        {
+          Offset = TotalItems - ListHeight;
+          if (Offset < 0) { Offset = 0; }
+        }
+        RenderControl();
+      }
+      else
+      {
+        SelectionPosition = Math.Min(SelectionPosition + Step, TotalItems - 1);
+        RenderItem(prevSelectionPosition);
+        RenderItem(SelectionPosition);
+      }
     }
   }
 }

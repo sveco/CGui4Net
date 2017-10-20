@@ -62,49 +62,6 @@ namespace CGui.Gui
       this.Content = content;
       Offset = 0;
     }
-    /*
-    protected string GetDisplayText(int index)
-    {
-      string result = _lines[index];
-      int desiredWith = (ShowScrollBar && Height < LinesCount) ? this.Width - 1 : this.Width;
-
-      switch (this.TextAlignment)
-      {
-        case TextAlignment.Left:
-          result = result.PadRight(desiredWith, this.PadChar);
-          break;
-
-        case TextAlignment.Right:
-          result = result.PadLeft(desiredWith, this.PadChar);
-          break;
-
-        case TextAlignment.Center:
-          result = result.PadBoth(desiredWith, this.PadChar);
-          break;
-      }
-
-      if (ShowScrollBar && Height < LinesCount)
-      {
-        var ratio = (double)Height / LinesCount;
-        int size = (int)Math.Ceiling((double)Height * ratio);
-        if (size < 1) { size = 1; }
-        var top = Math.Floor(Offset * ratio);
-
-        bool show = index - Offset >= top
-            && index - Offset < size + top;
-
-        if (show)
-        {
-          result = result + ScrollBarChar;
-        }
-        else
-        {
-          result = result + this.PadChar;
-        }
-      }
-      return result;
-    }
-    */
     protected override void RenderControl()
     {
       lock (ConsoleWrapper.Instance.Lock)
@@ -151,33 +108,19 @@ namespace CGui.Gui
         switch (key.Key)
         {
           case ConsoleKey.UpArrow:
-            if (Offset > 0) { Offset--; }
-            RenderControl();
+            ScrollUp();
             break;
 
           case ConsoleKey.DownArrow:
-            if (_lines.Count > Height + Offset)
-            {
-              Offset++;
-              RenderControl();
-            }
+            ScrollDown();
             break;
 
           case ConsoleKey.PageUp:
-            if (Offset > 10) { Offset = Offset - 10; } else { Offset = 0; }
-            RenderControl();
+            ScrollUp(DefaultPage);
             break;
 
           case ConsoleKey.PageDown:
-            if (_lines.Count < Height) { break; }
-            if (_lines.Count - 10 > Height + Offset)
-            {
-              Offset = Offset + 10;
-            } else {
-              if(Offset < _lines.Count - Height)
-              Offset = Math.Max(0,_lines.Count - Height);
-            }
-            RenderControl();
+            ScrollDown(DefaultPage);
             break;
 
           case ConsoleKey.Escape:
@@ -205,6 +148,27 @@ namespace CGui.Gui
       _lines = null;
 
       _disposed = true;
+    }
+
+    public override void ScrollUp(int Step)
+    {
+      if (Offset > Step) { Offset = Offset - Step; } else { Offset = 0; }
+      RenderControl();
+    }
+
+    public override void ScrollDown(int Step)
+    {
+      if (_lines.Count < Height) { return; }
+      if (_lines.Count - 10 > Height + Offset)
+      {
+        Offset = Offset + 10;
+      }
+      else
+      {
+        if (Offset < _lines.Count - Height)
+          Offset = Math.Max(0, _lines.Count - Height);
+      }
+      RenderControl();
     }
   }
 }

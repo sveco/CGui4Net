@@ -14,6 +14,13 @@ namespace CGui.Gui
 
   public class Dialog : GuiElement
   {
+    public event EventHandler<DialogChoice> ItemSelected;
+
+    protected virtual void OnItemSelected(DialogChoice c)
+    {
+      ItemSelected?.Invoke(this, c);
+    }
+
     public string Text { get; set; }
 
     private Dictionary<string, object> _buttons;
@@ -29,6 +36,13 @@ namespace CGui.Gui
       this.Width = Text.Length + 8;
       this.Left = (ConsoleWrapper.Instance.WindowWidth - this.Width) / 2;
     }
+
+    public override void Show()
+    {
+      this.Clear();
+      base.Show();
+    }
+
     protected override void RenderControl()
     {
       TextArea t = new TextArea(Text);
@@ -54,6 +68,7 @@ namespace CGui.Gui
     private bool P_OnItemKeyHandler(ConsoleKeyInfo key, DialogChoice selectedItem, Picklist<DialogChoice> parent)
     {
       //throw new NotImplementedException();
+      OnItemSelected(selectedItem);
       return false;
     }
 

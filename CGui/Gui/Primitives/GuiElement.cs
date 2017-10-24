@@ -79,13 +79,12 @@ namespace CGui.Gui.Primitives
     //public abstract void Show();
     public virtual void Show() {
         RenderBorder();
-        //BeginRenderControl();
         RenderControl();
-        //EndRenderControl();
     }
     public virtual void Clear() {
       for(int row = 0; row < this.Height; row ++)
       {
+        ConsoleWrapper.Instance.SetCursorPosition(this.Left, this.Top + row);
         ConsoleWrapper.Instance.Write(string.Empty.PadLeft(this.Width));
       }
     }

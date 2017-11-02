@@ -25,6 +25,7 @@ namespace CGui.Gui
 
     private Dictionary<string, object> _buttons;
     public Dictionary<string, object> Buttons { get => _buttons; private set => _buttons = value; }
+    public int SelectedItemIndex { get; set; }
 
     public Dialog(string Text, Dictionary<string, object> Buttons) {
       this.Text = Text;
@@ -59,6 +60,7 @@ namespace CGui.Gui
       p.Left = this.Left + 1;
       p.Width = this.Width - 2;
       p.Height = _buttons.Count;
+      p.SelectedItemIndex = this.SelectedItemIndex;
       p.OnItemKeyHandler += P_OnItemKeyHandler;
 
       t.Show();

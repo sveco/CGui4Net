@@ -348,7 +348,7 @@
             break;
 
           default:
-            if (SelectedItemIndex < this.TotalItems && OnItemKeyHandler != null)
+            if (SelectedItemIndex >= 0 && SelectedItemIndex < this.TotalItems && OnItemKeyHandler != null)
             {
               cont = OnItemKeyHandler(key, this.ListItems[SelectedItemIndex], this);
             }

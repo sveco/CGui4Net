@@ -140,6 +140,7 @@
     /// <param name="Step">The <see cref="int"/></param>
     public override void ScrollDown(int Step)
     {
+      if (TotalItems == 0) return;
       var prevSelectionPosition = Math.Max(SelectionPosition, 0);
       if (SelectedItemIndex + Step < TotalItems) { SelectedItemIndex += Step; } else { SelectedItemIndex = TotalItems - 1; }
       if (SelectionPosition + Step >= Math.Min(ListHeight, TotalItems - 1))
@@ -169,6 +170,7 @@
     /// <param name="Step">The <see cref="int"/></param>
     public override void ScrollUp(int Step)
     {
+      if (TotalItems == 0) return;
       var prevSelectionPosition = Math.Max(SelectionPosition, 0);
       if (SelectedItemIndex > Step) { SelectedItemIndex -= Step; } else { SelectedItemIndex = 0; }
       if (SelectionPosition > Step)

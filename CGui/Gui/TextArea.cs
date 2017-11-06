@@ -108,7 +108,7 @@
     /// <param name="Step">The <see cref="int"/></param>
     public override void ScrollDown(int Step)
     {
-      if (_lines.Count < Height) { return; }
+      if (_lines.Count == 0 || _lines.Count < Height) { return; }
       if (_lines.Count - Step > Height + Offset)
       {
         Offset = Offset + Step;
@@ -127,6 +127,7 @@
     /// <param name="Step">The <see cref="int"/></param>
     public override void ScrollUp(int Step)
     {
+      if (_lines.Count == 0 || _lines.Count < Height) { return; }
       if (Offset > Step) { Offset = Offset - Step; } else { Offset = 0; }
       RenderControl();
     }

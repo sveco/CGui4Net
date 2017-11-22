@@ -13,7 +13,7 @@ namespace CGui.Gui.Primitives
   /// </summary>
   public abstract class GuiElement : IDisposable
   {
-    private static int AbsWidth(int width)
+    public int AbsWidth(int width)
     {
       if (width < 0) { return Console.WindowWidth + width; }
       return width;
@@ -63,14 +63,14 @@ namespace CGui.Gui.Primitives
     }
     private int _width = 10;
     public virtual int Width {
-      get => _width;
+      get => AbsWidth(_width);
       set {
         _width = AbsWidth(value);
       }
     }
     private int _height = 10;
     public virtual int Height {
-      get => _height;
+      get => AbsHeight(_height);
       set {
         _height = AbsHeight(value);
       }

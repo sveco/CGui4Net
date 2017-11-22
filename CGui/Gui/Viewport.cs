@@ -9,8 +9,8 @@ namespace CGui.Gui
   {
     public Viewport()
     {
-      this.Width = ConsoleWrapper.Instance.WindowWidth;
-      this.Height = ConsoleWrapper.Instance.WindowHeight;
+      Width = ConsoleWrapper.Instance.WindowWidth;
+      Height = ConsoleWrapper.Instance.WindowHeight;
     }
 
     public override int Top { get => 0; set { } }

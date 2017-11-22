@@ -222,8 +222,7 @@
       Console.SetWindowSize(width, height);
     }
 
-    internal static string regexExcape =
-      @"\p{C}\[([fb]?)\:?(\w+)\]";
+    internal static string regexExcape = @"\p{C}\[([fb]?)\:?(\w+)\]";
 
     internal static Regex regex = new Regex(regexExcape);
 

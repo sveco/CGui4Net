@@ -30,7 +30,7 @@
       set
       {
         _content = value;
-        if (_width > 0)
+        if (_width != 0)
         {
           ParseText();
         }
@@ -55,10 +55,10 @@
     /// </summary>
     public override int Width
     {
-      get { return _width; }
+      get { return AbsWidth(_width); }
       set
       {
-        _width = value;
+        _width = AbsWidth(value);
         if (value > 0)
         {
           ParseText();

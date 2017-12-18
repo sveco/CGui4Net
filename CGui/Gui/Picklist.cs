@@ -281,6 +281,7 @@
     /// <param name="index">The <see cref="int"/></param>
     protected void RenderItem(int index)
     {
+      if (ListItems == null) return;
       lock (ConsoleWrapper.Instance.Lock)
       {
         ConsoleWrapper.Instance.CursorVisible = false;

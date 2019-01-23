@@ -24,7 +24,7 @@ namespace CGui.Gui
     {
       if (chunkSize < 1) throw new ArgumentException("Chunk size must be > 0.", "chunkSize");
 
-      char[] splitChars = new char[] { ' ' };
+      char[] splitChars = { ' ' };
 
       if (str.Length <= chunkSize) { return str.Split(new string[] { Environment.NewLine }, StringSplitOptions.None).ToList(); }
       StringBuilder sb = new StringBuilder();
@@ -34,8 +34,9 @@ namespace CGui.Gui
       foreach (var paragraph in paragraphs)
       {
         //make sure there are no wild CR's or LF's
-        var tmp = paragraph.Replace("\r", string.Empty);
-        tmp = tmp.Replace("\r", string.Empty);
+        var tmp = paragraph
+          .Replace("\r", string.Empty)
+          .Replace("\n", string.Empty);
 
         var words = tmp.Split(splitChars);
         var currentLine = "";

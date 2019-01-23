@@ -58,6 +58,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Gui\Dialog.cs" />
+    <Compile Include="Gui\EnumExtensions.cs" />
     <Compile Include="Gui\Primitives\Border.cs" />
     <Compile Include="Gui\ConsoleWrapper.cs" />
     <Compile Include="Gui\Input.cs" />

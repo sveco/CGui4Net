@@ -7,25 +7,17 @@
 	/// </summary>
 	public abstract class Scrollable : GuiElement, IScrollable
 	{
-		/// <summary>
-		/// Defines the current position character
-		/// </summary>
-		private string ScrollBarChar = "█";
+		private string _scrollBarChar = "█";
 
-		/// <summary>
-		/// Defines the scrollbar placeholder character
-		/// </summary>
-		private string ScrollBarCharInactive = "▒";
+		private string _scrollBarCharInactive = "▒";
 
-		/// <summary>
-		/// Defines the character to thow first on scrollbar
-		/// </summary>
-		private string ScrollBarCharUp = "▲";
+		private string _scrollBarCharUp = "▲";
 
-		/// <summary>
-		/// Defines the character to thow last on scrollbar
-		/// </summary>
-		private string ScrollBarCharDown = "▼";
+		private string _scrollBarCharDown = "▼";
+
+		private int _scrollStep = 1;
+
+		private int _scrollPageStep = 10;
 
 		private ConsoleColor _scrollBarColor = ConsoleWrapper.Instance.ForegroundColor;
 		public ConsoleColor ScrollBarColor
@@ -34,12 +26,14 @@
 		}
 
 		/// <summary>
-		/// Gets or sets the Offset
+		/// Gets or sets the current position of scrollbar
 		/// </summary>
 		public int Offset { get; set; }
 
-		private int _defaultPage = 10;
-		public int DefaultPage { get => _defaultPage; set => _defaultPage = value; }
+		/// <summary>
+		/// Gets or sets number of lines to scroll when using pgup/pgdn
+		/// </summary>
+		public int ScrollPageStep { get => _scrollPageStep; set => _scrollPageStep = value; }
 
 		/// <summary>
 		/// Gets the total items to scroll
@@ -50,6 +44,26 @@
 		/// Gets or sets a value indicating whether to show scrollbar
 		/// </summary>
 		public bool ShowScrollBar { get; set; }
+		/// <summary>
+		/// Gets or sets character to show as current scrollbar position
+		/// </summary>
+		public string ScrollBarChar { get => _scrollBarChar; set => _scrollBarChar = value; }
+		/// <summary>
+		/// Gets or sets character to show as inactive scrollbar position
+		/// </summary>
+		public string ScrollBarCharInactive { get => _scrollBarCharInactive; set => _scrollBarCharInactive = value; }
+		/// <summary>
+		/// Gets or sets character to show as scroll up character
+		/// </summary>
+		public string ScrollBarCharUp { get => _scrollBarCharUp; set => _scrollBarCharUp = value; }
+		/// <summary>
+		/// Gets or sets character to show as scroll down character
+		/// </summary>
+		public string ScrollBarCharDown { get => _scrollBarCharDown; set => _scrollBarCharDown = value; }
+		/// <summary>
+		/// Number of lines to scroll
+		/// </summary>
+		public int ScrollStep { get => _scrollStep; set => _scrollStep = value; }
 
 		/// <summary>
 		/// Returns formatted display text for item including scrollbar
@@ -89,7 +103,7 @@
 			var visibleHeight = Height - (BorderWidth * 2);
 			if (ShowScrollBar && visibleHeight > 3 && visibleHeight < TotalItems)
 			{
-				var ratio = ((double)visibleHeight - 1.1) / TotalItems;
+				var ratio = ((double)visibleHeight-1.5) / TotalItems; //This fine-tuned constant ensures that the bottom scroll position is correct. Do Not Touch.
 				int size = Math.Max((int)Math.Ceiling(((double)visibleHeight) * ratio) - 2, 1);
 				var top = Math.Ceiling(Offset * ratio);
 
@@ -101,19 +115,19 @@
 
 				if (first)
 				{
-					DisplayText = DisplayText + ScrollBarColor.GetColorCode(true) + ScrollBarCharUp + ConsoleWrapper.ColorReset;
+					DisplayText = DisplayText + ScrollBarColor.GetColorCode(true) + _scrollBarCharUp + ConsoleWrapper.ColorReset;
 				}
 				else if (last)
 				{
-					DisplayText = DisplayText + ScrollBarColor.GetColorCode(true) + ScrollBarCharDown + ConsoleWrapper.ColorReset;
+					DisplayText = DisplayText + ScrollBarColor.GetColorCode(true) + _scrollBarCharDown + ConsoleWrapper.ColorReset;
 				}
 				else if (show)
 				{
-					DisplayText = DisplayText + ScrollBarColor.GetColorCode(true) + ScrollBarChar + ConsoleWrapper.ColorReset;
+					DisplayText = DisplayText + ScrollBarColor.GetColorCode(true) + _scrollBarChar + ConsoleWrapper.ColorReset;
 				}
 				else
 				{
-					DisplayText = DisplayText + ScrollBarColor.GetColorCode(true) + ScrollBarCharInactive + ConsoleWrapper.ColorReset;
+					DisplayText = DisplayText + ScrollBarColor.GetColorCode(true) + _scrollBarCharInactive + ConsoleWrapper.ColorReset;
 				}
 			}
 
@@ -122,11 +136,11 @@
 
 		public virtual void ScrollUp()
 		{
-			ScrollUp(1);
+			ScrollUp(_scrollStep);
 		}
 		public virtual void ScrollDown()
 		{
-			ScrollDown(1);
+			ScrollDown(_scrollStep);
 		}
 		public abstract void ScrollUp(int Step);
 		public abstract void ScrollDown(int Step);

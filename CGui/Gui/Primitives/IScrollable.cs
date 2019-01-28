@@ -8,7 +8,8 @@ namespace CGui.Gui.Primitives
 {
   public interface IScrollable
   {
-    int DefaultPage { get; set; }
+	int ScrollStep { get; set; }
+    int ScrollPageStep { get; set; }
     int Offset { get; set; }
     bool ShowScrollBar { get; set; }
     void ScrollUp();

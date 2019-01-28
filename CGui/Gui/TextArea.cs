@@ -204,11 +204,11 @@
             break;
 
           case ConsoleKey.PageUp:
-            ScrollUp(DefaultPage);
+            ScrollUp(ScrollPageStep);
             break;
 
           case ConsoleKey.PageDown:
-            ScrollDown(DefaultPage);
+            ScrollDown(ScrollPageStep);
             break;
 
           case ConsoleKey.Escape:

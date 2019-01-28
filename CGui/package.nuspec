@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<package>
+  <metadata>
+    <!--*-->
+    <id>CGui</id>
+    <!--*-->
+    <version>1.2.0</version>
+    <title>CGui</title>
+    <!--*-->
+    <authors>Sveco</authors>
+    <owners>Sveco</owners>
+    <license type="expression">GPL-3.0-or-later</license>
+    <projectUrl>https://github.com/sveco/CGui4Net</projectUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <!--*-->
+    <description>Console Gui library for .net</description>
+    <!--*-->
+    <releaseNotes>Changes in IScrollable class to support custom scroll char.</releaseNotes>
+    <copyright>Copyright ©  2019</copyright>
+    <tags>
+    </tags>
+    <dependencies>
+      <!--
+      <dependency id="SampleDependency" version="1.0" />
+-->
+    </dependencies>
+  </metadata>
+</package>

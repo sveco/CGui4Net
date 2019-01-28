@@ -7,6 +7,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CGui", "CGui\CGui.csproj", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CGuiDemo", "CGuiDemo\CGuiDemo.csproj", "{98EC16F8-C664-41E3-B419-88E7A03D36E4}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{23F65F20-2B37-415C-B46F-DC2B9B0F70F6}"
+	ProjectSection(SolutionItems) = preProject
+		CGuicgui.nuspec = CGuicgui.nuspec
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU

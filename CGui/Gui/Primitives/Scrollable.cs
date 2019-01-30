@@ -65,6 +65,8 @@
 		/// </summary>
 		public int ScrollStep { get => _scrollStep; set => _scrollStep = value; }
 
+		private int visibleHeight { get => Height - (BorderWidth * 2); }
+
 		/// <summary>
 		/// Returns formatted display text for item including scrollbar
 		/// </summary>
@@ -100,20 +102,24 @@
 				}
 			}
 
-			var visibleHeight = Height - (BorderWidth * 2);
 			if (ShowScrollBar && visibleHeight > 3 && visibleHeight < TotalItems)
 			{
-				var ratio = ((double)visibleHeight-1.5) / TotalItems; //This fine-tuned constant ensures that the bottom scroll position is correct. Do Not Touch.
-				int size = Math.Max((int)Math.Ceiling(((double)visibleHeight) * ratio) - 2, 1);
-				var top = Math.Ceiling(Offset * ratio);
-
+				double totalItems = TotalItems;
+				double totalPages = (visibleHeight - 2);
+				double pageSize = totalItems / (visibleHeight );
+				double scrollBarSize = Math.Max(totalPages * visibleHeight / totalItems, 1);
+				double currentPage = Math.Ceiling(Offset / pageSize);
+				if(currentPage > totalPages - scrollBarSize) { currentPage = totalPages - scrollBarSize; }
+				
 				bool first = (Index - Offset == 0);
 				bool last = Index - Offset == visibleHeight - 1;
 
-				bool show = Index - Offset > top
-					&& Index - Offset <= size + top;
+				var currentRow = (Index - Offset); // current row being displayed
 
-				if (first)
+				bool show = currentRow - 1 >= currentPage
+					&& currentRow - 1 < scrollBarSize + currentPage;
+
+			if (first)
 				{
 					DisplayText = DisplayText + ScrollBarColor.GetColorCode(true) + _scrollBarCharUp + ConsoleWrapper.ColorReset;
 				}

@@ -4,7 +4,7 @@
     <!--*-->
     <id>CGui</id>
     <!--*-->
-    <version>1.2.0</version>
+    <version>1.2.1</version>
     <title>CGui</title>
     <!--*-->
     <authors>Sveco</authors>
@@ -15,7 +15,11 @@
     <!--*-->
     <description>Console Gui library for .net</description>
     <!--*-->
-    <releaseNotes>Changes in IScrollable class to support custom scroll char.</releaseNotes>
+    <releaseNotes>1.2.1
+Fixed scrolling past the max pages count. Still some quirks, needs testing.
+
+1.2.0 
+Changes in IScrollable class to support custom scroll char.</releaseNotes>
     <copyright>Copyright ©  2019</copyright>
     <tags>
     </tags>

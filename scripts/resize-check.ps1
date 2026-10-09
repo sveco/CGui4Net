@@ -219,6 +219,7 @@ function Run-Scenario($mode, $sizes) {
 $sizes = @(@(100, 30), @(70, 12), @(140, 45), @(50, 15), @(20, 6), @(100, 30), @(120, 40))
 Run-Scenario 'list' $sizes
 Run-Scenario 'text' $sizes
+Run-Scenario 'late' $sizes   # viewport shown first, key loop started after Viewport.Show returned
 
 $report | ForEach-Object { $_ }
 if ($failures -eq 0) { 'ALL CHECKS PASSED' } else { "$failures CHECK(S) FAILED" }

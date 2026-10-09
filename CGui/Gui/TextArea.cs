@@ -225,6 +225,7 @@ namespace CGui.Gui
         bool cont = true;
         do
         {
+          Viewport.BeforeKeyWait(this);
           var key = ConsoleWrapper.Instance.ReadKey(true);
 
           switch (key.Key)

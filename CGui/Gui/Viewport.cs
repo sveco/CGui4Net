@@ -2,6 +2,7 @@ using CGui.Gui.Primitives;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace CGui.Gui
@@ -9,14 +10,27 @@ namespace CGui.Gui
   public class Viewport : GuiElement
   {
     /// <summary>
-    /// Viewports that are showing, the last one is on top. Viewports are nested when an application opens
-    /// another view from the keyboard handler of the first one.
+    /// All viewports, to find the one a control belongs to. They are not kept alive by this list.
     /// </summary>
-    private static readonly List<Viewport> ActiveViewports = new List<Viewport>();
+    private static readonly List<WeakReference<Viewport>> AllViewports = new List<WeakReference<Viewport>>();
+
+    /// <summary>
+    /// The control that waits for a key on the current thread, when it belongs to a viewport.
+    /// </summary>
+    [ThreadStatic]
+    private static GuiElement _loopOwner;
 
     static Viewport()
     {
-      ConsoleWrapper.Instance.Resized += (sender, e) => TopViewport()?.HandleResize();
+      ConsoleWrapper.Instance.Resized += (sender, e) =>
+      {
+        // raised on the thread that waits for a key, see ConsoleWrapper.ReadKey
+        var owner = _loopOwner;
+        if (owner != null)
+        {
+          ForControl(owner)?.HandleResize();
+        }
+      };
     }
 
     /// <summary>
@@ -25,12 +39,17 @@ namespace CGui.Gui
     /// </summary>
     public Viewport()
     {
+      lock (AllViewports)
+      {
+        AllViewports.RemoveAll(r => !r.TryGetTarget(out Viewport v));
+        AllViewports.Add(new WeakReference<Viewport>(this));
+      }
     }
 
     /// <summary>
-    /// When true, which is the default, the viewport that is on screen draws all its controls again when the
-    /// console is resized. Relative sizes of the controls (negative Width or Height) are calculated again
-    /// for the new size.
+    /// When true, which is the default, the viewport draws all its controls again when the console is
+    /// resized, while one of its controls waits for a key. Relative sizes of the controls (negative Width
+    /// or Height) are calculated again for the new size.
     /// </summary>
     public bool RefreshOnResize { get; set; } = true;
 
@@ -89,36 +108,16 @@ namespace CGui.Gui
 
     protected override void RenderControl()
     {
-      lock (ActiveViewports)
-      {
-        ActiveViewports.Add(this);
-      }
+      RememberSize();
+      ConsoleWrapper.Clear();
 
-      try
-      {
-        RememberSize();
-        ConsoleWrapper.Clear();
-
-        Parallel.ForEach(Controls, (e) => {
-          if (e != null)
-          {
-            e.IsDisplayed = true;
-            e.Show();
-          }
-        });
-      }
-      finally
-      {
-        Viewport parent;
-        lock (ActiveViewports)
+      Parallel.ForEach(Controls, (e) => {
+        if (e != null)
         {
-          ActiveViewports.Remove(this);
-          parent = ActiveViewports.Count > 0 ? ActiveViewports[ActiveViewports.Count - 1] : null;
+          e.IsDisplayed = true;
+          e.Show();
         }
-
-        // the console may have been resized while the parent was covered by this viewport
-        parent?.CatchUp();
-      }
+      });
     }
 
     public override void Refresh()
@@ -135,38 +134,70 @@ namespace CGui.Gui
     }
 
     /// <summary>
-    /// The viewport that is on top of the others on screen, or null.
+    /// The viewport a control belongs to, or null. The most recently created viewport wins when a control
+    /// was added to more than one.
     /// </summary>
-    private static Viewport TopViewport()
+    private static Viewport ForControl(GuiElement control)
     {
-      lock (ActiveViewports)
+      lock (AllViewports)
       {
-        return ActiveViewports.Count > 0 ? ActiveViewports[ActiveViewports.Count - 1] : null;
+        for (int i = AllViewports.Count - 1; i >= 0; i--)
+        {
+          if (AllViewports[i].TryGetTarget(out Viewport viewport)
+              && viewport.Controls != null
+              && viewport.Controls.Contains(control))
+          {
+            return viewport;
+          }
+        }
       }
+      return null;
     }
 
     /// <summary>
-    /// Marks a keyboard loop of a control. When the control belongs to the viewport that is on top, the
-    /// viewport is drawn again when the console is resized. Any other control, like a dialog on top of the
+    /// Marks the keyboard loop of a control. The viewport the control belongs to is drawn again when the
+    /// console is resized while the loop waits for a key. Any other control, like a dialog on top of a
     /// viewport, would be wiped by that, so resizes are held back until its loop ends.
     /// </summary>
     internal static IDisposable KeyLoopScope(GuiElement control)
     {
-      var top = TopViewport();
-      if (top != null && top.Controls != null && top.Controls.Contains(control))
+      var previous = _loopOwner;
+      if (ForControl(control) != null)
       {
-        return NoScope.Instance;
+        _loopOwner = control;
+        return new LoopScope(previous, null);
       }
-      return ConsoleWrapper.Instance.SuspendResize();
+
+      _loopOwner = null;
+      return new LoopScope(previous, ConsoleWrapper.Instance.SuspendResize());
     }
 
-    private sealed class NoScope : IDisposable
+    private sealed class LoopScope : IDisposable
     {
-      public static readonly NoScope Instance = new NoScope();
+      private readonly GuiElement _previous;
+      private IDisposable _suspension;
+
+      public LoopScope(GuiElement previous, IDisposable suspension)
+      {
+        _previous = previous;
+        _suspension = suspension;
+      }
 
       public void Dispose()
       {
+        _loopOwner = _previous;
+        var suspension = Interlocked.Exchange(ref _suspension, null);
+        suspension?.Dispose();
       }
+    }
+
+    /// <summary>
+    /// Called by the keyboard loop of a control before it waits for the next key. The console may have been
+    /// resized while the viewport was covered by another one, or while the loop was busy with a key.
+    /// </summary>
+    internal static void BeforeKeyWait(GuiElement control)
+    {
+      ForControl(control)?.CatchUp();
     }
 
     /// <summary>
@@ -198,7 +229,8 @@ namespace CGui.Gui
         return;
       }
 
-      if (width != _laidOutWidth || height != _laidOutHeight)
+      // nothing was drawn yet when the size is not known
+      if (_laidOutWidth != 0 && (width != _laidOutWidth || height != _laidOutHeight))
       {
         HandleResize();
       }

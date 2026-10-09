@@ -356,6 +356,7 @@
         bool cont = true;
         do
         {
+          Viewport.BeforeKeyWait(this);
           var key = ConsoleWrapper.Instance.ReadKey(true);
           var prevSelectionPosition = Math.Max(SelectionPosition, 0);
           switch (key.Key)

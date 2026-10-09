@@ -28,19 +28,22 @@ namespace CGui.Gui.Primitives
 
     protected string FormatDisplayText(string displayText)
     {
-      string result = displayText;
+      // The row fills the console line. Text that is longer is shortened, otherwise it would wrap to the
+      // next line, and scroll the screen when the row is the last line.
+      int width = this.Width - this.BorderWidth + 2;
+      string result = (displayText ?? string.Empty).TruncateVisible(width);
       switch (this.TextAlignment)
       {
         case TextAlignment.Left:
-          result = result.PadRight(this.Width - this.BorderWidth + 2, this.PadChar);
+          result = result.PadRightVisible(width, this.PadChar);
           break;
 
         case TextAlignment.Right:
-          result = result.PadLeft(this.Width - this.BorderWidth + 2, this.PadChar);
+          result = result.PadLeftVisible(width, this.PadChar);
           break;
 
         case TextAlignment.Center:
-          result = result.PadBoth(this.Width - this.BorderWidth + 2, this.PadChar);
+          result = result.PadBothVisible(width, this.PadChar);
           break;
       }
       return result;

@@ -64,12 +64,18 @@
     }
 
     /// <summary>
-    /// Gets the height of list itself (without borders)
+    /// Gets the height of list itself (without borders), the number of items that are visible at once.
     /// </summary>
-    private int ListHeight
+    public int ListHeight
     {
       get { return this.Height - (BorderWidth * 2); }
     }
+
+    /// <summary>
+    /// Height of the list when it was drawn last. When it is different, the offset and the selection are
+    /// checked against the new height before drawing.
+    /// </summary>
+    private int _renderedListHeight = -1;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="Picklist{T}"/> class.
@@ -269,6 +275,22 @@
     {
       if (TotalItems == 0) { return; }
       this.IsDisplayed = true;
+
+      // The list can be higher or lower than when it was scrolled, for example after the console was
+      // resized. Make sure the selected item is still in the visible rows.
+      int listHeight = ListHeight;
+      if (listHeight != _renderedListHeight)
+      {
+        int offset = Offset;
+        int selectedIndex = SelectedItemIndex;
+        int selectionPosition;
+        ListLayout.KeepSelectionVisible(TotalItems, listHeight, ref offset, ref selectedIndex, out selectionPosition);
+        Offset = offset;
+        SelectedItemIndex = selectedIndex;
+        SelectionPosition = selectionPosition;
+        _renderedListHeight = listHeight;
+      }
+
       for (int i = 0; i < Math.Min(ListHeight, TotalItems - Offset); i++)
       {
         RenderItem(i);
@@ -327,41 +349,46 @@
     /// </summary>
     private void Select()
     {
-      bool cont = true;
-      do
+      // a list that is not part of the viewport on screen is a dialog on top of it, it is not redrawn
+      // by the viewport when the console is resized
+      using (Viewport.KeyLoopScope(this))
       {
-        var key = ConsoleWrapper.Instance.ReadKey(true);
-        var prevSelectionPosition = Math.Max(SelectionPosition, 0);
-        switch (key.Key)
+        bool cont = true;
+        do
         {
-          case ConsoleKey.UpArrow:
-            ScrollUp();
-            break;
+          var key = ConsoleWrapper.Instance.ReadKey(true);
+          var prevSelectionPosition = Math.Max(SelectionPosition, 0);
+          switch (key.Key)
+          {
+            case ConsoleKey.UpArrow:
+              ScrollUp();
+              break;
 
-          case ConsoleKey.DownArrow:
-            ScrollDown();
-            break;
+            case ConsoleKey.DownArrow:
+              ScrollDown();
+              break;
 
-          case ConsoleKey.PageUp:
-            ScrollUp(ScrollPageStep);
-            break;
+            case ConsoleKey.PageUp:
+              ScrollUp(ScrollPageStep);
+              break;
 
-          case ConsoleKey.PageDown:
-            ScrollDown(ScrollPageStep);
-            break;
+            case ConsoleKey.PageDown:
+              ScrollDown(ScrollPageStep);
+              break;
 
-          default:
-            if (SelectedItemIndex >= 0 && SelectedItemIndex < this.TotalItems && OnItemKeyHandler != null)
-            {
-              cont = OnItemKeyHandler(key, this.ListItems[SelectedItemIndex], this);
-            }
-            else
-            {
-              cont = false;
-            }
-            break;
-        }
-      } while (cont);
+            default:
+              if (SelectedItemIndex >= 0 && SelectedItemIndex < this.TotalItems && OnItemKeyHandler != null)
+              {
+                cont = OnItemKeyHandler(key, this.ListItems[SelectedItemIndex], this);
+              }
+              else
+              {
+                cont = false;
+              }
+              break;
+          }
+        } while (cont);
+      }
     }
   }
 }

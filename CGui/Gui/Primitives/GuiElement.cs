@@ -61,18 +61,21 @@ namespace CGui.Gui.Primitives
         if (_left < 0) { _left = 0; }
       }
     }
+    // A negative width or height is relative to the console: -3 is the size of the console minus 3.
+    // The value is kept as it was set and turned into a size every time it is read, so the element
+    // follows the console when it is resized.
     private int _width = 10;
     public virtual int Width {
       get => AbsWidth(_width);
       set {
-        _width = AbsWidth(value);
+        _width = value;
       }
     }
     private int _height = 10;
     public virtual int Height {
       get => AbsHeight(_height);
       set {
-        _height = AbsHeight(value);
+        _height = value;
       }
     }
 

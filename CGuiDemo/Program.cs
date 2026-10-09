@@ -44,8 +44,89 @@ namespace CGuiDemo
     static Header h;
     static Footer f;
 
+    /// <summary>
+    /// Shows a list or a text that fills the console window, to try what happens when the window is
+    /// resized: CGuiDemo --resize list, or CGuiDemo --resize text. Esc quits.
+    /// </summary>
+    [System.Runtime.InteropServices.DllImport("kernel32.dll")]
+    static extern IntPtr GetStdHandle(int handle);
+
+    [System.Runtime.InteropServices.DllImport("kernel32.dll")]
+    static extern bool GetConsoleMode(IntPtr handle, out uint mode);
+
+    [System.Runtime.InteropServices.DllImport("kernel32.dll")]
+    static extern bool SetConsoleMode(IntPtr handle, uint mode);
+
+    /// <summary>
+    /// The scrollbar is drawn with ANSI colour codes. The console shows them as text unless virtual
+    /// terminal processing is on, which is not the default in older consoles.
+    /// </summary>
+    static void EnableVirtualTerminal()
+    {
+      const int StdOutputHandle = -11;
+      const uint EnableVirtualTerminalProcessing = 0x0004;
+      var handle = GetStdHandle(StdOutputHandle);
+      uint mode;
+      if (GetConsoleMode(handle, out mode))
+      {
+        SetConsoleMode(handle, mode | EnableVirtualTerminalProcessing);
+      }
+    }
+
+    static void ResizeDemo(string mode)
+    {
+      EnableVirtualTerminal();
+      var view = new Viewport();
+
+      view.Controls.Add(new Header("CGui resize demo (" + mode + ")") { TextAlignment = TextAlignment.Center, PadChar = '=' });
+      view.Controls.Add(new Footer(" Esc:Quit Up/Down:Move PageUp/PageDown:Scroll - this footer is long on purpose, it is shortened when the window is narrow ") { PadChar = '=' });
+
+      if (mode == "text")
+      {
+        var paragraph = "Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.";
+        var text = string.Join(Environment.NewLine, Enumerable.Range(1, 40).Select(i => i + ". " + paragraph));
+
+        // negative sizes are relative to the console: the width of the console minus 3, and so on
+        view.Controls.Add(new TextArea(text)
+        {
+          Top = 1,
+          Left = 2,
+          Width = -3,
+          Height = -3,
+          ShowScrollBar = true,
+          WaitForInput = true
+        });
+      }
+      else
+      {
+        var items = Enumerable.Range(1, 60)
+          .Select(i => new MyListItem() { Value = i.ToString(), DisplayText = "Item " + i, Index = i - 1 })
+          .ToArray();
+        var l = new Picklist<MyListItem>(items, null)
+        {
+          Top = 1,
+          Left = 2,
+          Width = -3,
+          Height = -3,
+          ShowScrollBar = true,
+          SelectedForegroundColor = ConsoleColor.White,
+          SelectedBackgroundColor = ConsoleColor.Magenta
+        };
+        l.OnItemKeyHandler += (key, selectedItem, parent) => key.Key != ConsoleKey.Escape;
+        view.Controls.Add(l);
+      }
+
+      view.Show();
+    }
+
     static void Main(string[] args)
     {
+      if (args.Length > 0 && args[0] == "--resize")
+      {
+        ResizeDemo(args.Length > 1 ? args[1] : "list");
+        return;
+      }
+
       _mainview = new Viewport();
       _mainview.Height = 20;
       _mainview.Width = 100;

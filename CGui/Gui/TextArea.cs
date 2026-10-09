@@ -1,4 +1,4 @@
-﻿namespace CGui.Gui
+namespace CGui.Gui
 {
   using System;
   using System.Collections.Generic;
@@ -19,7 +19,18 @@
     /// </summary>
     private IList<string> _lines = new List<string>();
 
+    /// <summary>
+    /// Width as it was set. Negative is relative to the console, like for any other element.
+    /// </summary>
     private int _width = 0;
+
+    /// <summary>
+    /// Width the lines were wrapped for. The text is wrapped again when the width has changed, for
+    /// example when the console was resized.
+    /// </summary>
+    private int _parsedWidth = -1;
+
+    private readonly object _linesLock = new object();
 
     /// <summary>
     /// Gets or sets the Content of <see cref="TextArea"/>
@@ -30,9 +41,24 @@
       set
       {
         _content = value;
-        if (_width != 0)
+        _parsedWidth = -1;
+      }
+    }
+
+    /// <summary>
+    /// Lines of text, wrapped for the current width.
+    /// </summary>
+    private IList<string> Lines
+    {
+      get
+      {
+        lock (_linesLock)
         {
-          ParseText();
+          if (_width != 0 && _parsedWidth != Width)
+          {
+            ParseText();
+          }
+          return _lines;
         }
       }
     }
@@ -42,7 +68,7 @@
     /// </summary>
     public override int TotalItems
     {
-      get { return _lines.Count(); }
+      get { return Lines.Count(); }
     }
 
     /// <summary>
@@ -58,11 +84,8 @@
       get { return AbsWidth(_width); }
       set
       {
-        _width = AbsWidth(value);
-        if (value > 0)
-        {
-          ParseText();
-        }
+        _width = value;
+        _parsedWidth = -1;
       }
     }
     /// <summary>
@@ -108,15 +131,16 @@
     /// <param name="Step">The <see cref="int"/></param>
     public override void ScrollDown(int Step)
     {
-      if (_lines.Count == 0 || _lines.Count < Height) { return; }
-      if (_lines.Count - Step > Height + Offset)
+      var lines = Lines;
+      if (lines.Count == 0 || lines.Count < Height) { return; }
+      if (lines.Count - Step > Height + Offset)
       {
         Offset = Offset + Step;
       }
       else
       {
-        if (Offset < _lines.Count - Height)
-          Offset = Math.Max(0, _lines.Count - Height);
+        if (Offset < lines.Count - Height)
+          Offset = Math.Max(0, lines.Count - Height);
       }
       RenderControl();
     }
@@ -127,7 +151,8 @@
     /// <param name="Step">The <see cref="int"/></param>
     public override void ScrollUp(int Step)
     {
-      if (_lines.Count == 0 || _lines.Count < Height) { return; }
+      var lines = Lines;
+      if (lines.Count == 0 || lines.Count < Height) { return; }
       if (Offset > Step) { Offset = Offset - Step; } else { Offset = 0; }
       RenderControl();
     }
@@ -172,10 +197,15 @@
         ConsoleWrapper.Instance.ForegroundColor = this.ForegroundColor;
         ConsoleWrapper.Instance.BackgroundColor = this.BackgroundColor;
 
-        for (int i = 0; i < Math.Min(Height - (BorderWidth * 2), _lines.Count - Offset - (BorderWidth * 2)); i++)
+        var lines = Lines;
+
+        // the text can be shorter, or the area higher, than when it was scrolled
+        Offset = ListLayout.ClampOffset(Offset, lines.Count, Height - (BorderWidth * 2));
+
+        for (int i = 0; i < Math.Min(Height - (BorderWidth * 2), lines.Count - Offset - (BorderWidth * 2)); i++)
         {
           ConsoleWrapper.Instance.SetCursorPosition(Left + BorderWidth, Top + i + BorderWidth);
-          ConsoleWrapper.Instance.Write(GetDisplayText(Offset + i, _lines[Offset + i]));
+          ConsoleWrapper.Instance.Write(GetDisplayText(Offset + i, lines[Offset + i]));
         }
 
         ConsoleWrapper.Instance.SetCursorPosition(0, 0);
@@ -188,42 +218,47 @@
     /// </summary>
     private void InputLoop()
     {
-      bool cont = true;
-      do
+      // a text area that is not part of the viewport on screen is a dialog on top of it, it is not redrawn
+      // by the viewport when the console is resized
+      using (Viewport.KeyLoopScope(this))
       {
-        var key = ConsoleWrapper.Instance.ReadKey(true);
-
-        switch (key.Key)
+        bool cont = true;
+        do
         {
-          case ConsoleKey.UpArrow:
-            ScrollUp();
-            break;
+          var key = ConsoleWrapper.Instance.ReadKey(true);
 
-          case ConsoleKey.DownArrow:
-            ScrollDown();
-            break;
+          switch (key.Key)
+          {
+            case ConsoleKey.UpArrow:
+              ScrollUp();
+              break;
 
-          case ConsoleKey.PageUp:
-            ScrollUp(ScrollPageStep);
-            break;
+            case ConsoleKey.DownArrow:
+              ScrollDown();
+              break;
 
-          case ConsoleKey.PageDown:
-            ScrollDown(ScrollPageStep);
-            break;
+            case ConsoleKey.PageUp:
+              ScrollUp(ScrollPageStep);
+              break;
 
-          case ConsoleKey.Escape:
-            cont = false;
-            break;
+            case ConsoleKey.PageDown:
+              ScrollDown(ScrollPageStep);
+              break;
 
-          default:
-            if (OnItemKeyHandler != null)
-            {
-              cont = OnItemKeyHandler(key);
-            }
-            break;
-        }
+            case ConsoleKey.Escape:
+              cont = false;
+              break;
 
-      } while (cont);
+            default:
+              if (OnItemKeyHandler != null)
+              {
+                cont = OnItemKeyHandler(key);
+              }
+              break;
+          }
+
+        } while (cont);
+      }
     }
 
     /// <summary>
@@ -232,10 +267,12 @@
     /// <returns>The <see cref="IList{string}"/></returns>
     private IList<string> ParseText()
     {
+      _parsedWidth = Width;
       _lines = new List<string>();
       if (!string.IsNullOrWhiteSpace(Content))
       {
-        _lines = Content.Split(this.Width - 5).ToList();
+        // Split needs a chunk of at least 1, which a narrow text area does not have
+        _lines = Content.Split(Math.Max(1, _parsedWidth - 5)).ToList();
       }
 
       return _lines;

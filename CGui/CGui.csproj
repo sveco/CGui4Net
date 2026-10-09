@@ -65,6 +65,8 @@
     <Compile Include="Gui\Primitives\GuiElement.cs" />
     <Compile Include="Gui\Header.cs" />
     <Compile Include="Gui\Picklist.cs" />
+    <Compile Include="Gui\Primitives\ListLayout.cs" />
+    <Compile Include="Gui\Primitives\SizeChangeDetector.cs" />
     <Compile Include="Gui\Primitives\IListItem.cs" />
     <Compile Include="Gui\Primitives\IScrollable.cs" />
     <Compile Include="Gui\Primitives\ListItem.cs" />

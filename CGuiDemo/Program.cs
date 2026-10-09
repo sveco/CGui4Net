@@ -81,21 +81,33 @@ namespace CGuiDemo
       view.Controls.Add(new Header("CGui resize demo (" + mode + ")") { TextAlignment = TextAlignment.Center, PadChar = '=' });
       view.Controls.Add(new Footer(" Esc:Quit Up/Down:Move PageUp/PageDown:Scroll - this footer is long on purpose, it is shortened when the window is narrow ") { PadChar = '=' });
 
-      if (mode == "text")
+      if (mode == "text" || mode == "late")
       {
         var paragraph = "Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.";
         var text = string.Join(Environment.NewLine, Enumerable.Range(1, 40).Select(i => i + ". " + paragraph));
 
         // negative sizes are relative to the console: the width of the console minus 3, and so on
-        view.Controls.Add(new TextArea(text)
+        var area = new TextArea(text)
         {
           Top = 1,
           Left = 2,
           Width = -3,
           Height = -3,
           ShowScrollBar = true,
-          WaitForInput = true
-        });
+          WaitForInput = mode == "text"
+        };
+        view.Controls.Add(area);
+
+        if (mode == "late")
+        {
+          // The viewport is shown first and returns at once, because no control waits for keys yet. The
+          // keyboard loop of the text area starts afterwards, outside of Viewport.Show. Applications that
+          // load their content in the background do this.
+          view.Show();
+          area.WaitForInput = true;
+          area.Show();
+          return;
+        }
       }
       else
       {

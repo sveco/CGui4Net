@@ -4,7 +4,7 @@
     <!--*-->
     <id>CGui</id>
     <!--*-->
-    <version>1.2.1</version>
+    <version>1.3.0</version>
     <title>CGui</title>
     <!--*-->
     <authors>Sveco</authors>
@@ -15,7 +15,16 @@
     <!--*-->
     <description>Console Gui library for .net</description>
     <!--*-->
-    <releaseNotes>1.2.1
+    <releaseNotes>1.3.0
+The console can be resized while the application runs. A viewport that is on screen is drawn again for the new size.
+- A negative Width or Height of a control (relative to the console) is kept as it was set, and follows the console. Before it was turned into a fixed number when it was set.
+- TextArea wraps its text again when its width changes, and does not fail for a very narrow width.
+- Picklist keeps the selected item visible when its height changes. ListHeight is public.
+- Header, Footer and Input rows shorten text that is longer than the window, instead of wrapping to the next line.
+- New: Viewport.RefreshOnResize, Viewport.Resizing, Viewport.Resized and ConsoleWrapper.Resized.
+- Breaking: the Viewport constructor no longer changes the size of the console window, set Viewport.Width and Height for that.
+
+1.2.1
 Fixed scrolling past the max pages count. Still some quirks, needs testing.
 
 1.2.0 

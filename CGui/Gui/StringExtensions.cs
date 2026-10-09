@@ -83,6 +83,61 @@ namespace CGui.Gui
       return stripedControl.Length;
     }
 
+    /// <summary>
+    /// Shortens the text to at most <paramref name="maxVisible"/> visible characters. Colour tags do not
+    /// count and are always kept, so the colours after the cut stay balanced.
+    /// </summary>
+    public static string TruncateVisible(this string str, int maxVisible)
+    {
+      if (str == null || maxVisible < 0 || str.VisibleLength() <= maxVisible) return str;
+
+      var tag = new Regex(@"\G\p{C}\[([fb]?)\:?(\w+)\]");
+      var result = new StringBuilder();
+      int visible = 0;
+      int i = 0;
+      while (i < str.Length)
+      {
+        var match = tag.Match(str, i);
+        if (match.Success)
+        {
+          result.Append(match.Value);
+          i += match.Length;
+          continue;
+        }
+        if (visible < maxVisible)
+        {
+          result.Append(str[i]);
+          visible++;
+        }
+        i++;
+      }
+      return result.ToString();
+    }
+
+    /// <summary>
+    /// Like PadLeft, but colour tags do not count towards the length.
+    /// </summary>
+    public static string PadLeftVisible(this string str, int totalWidth, char padChar)
+    {
+      return str.PadLeft(totalWidth + (str.Length - str.VisibleLength()), padChar);
+    }
+
+    /// <summary>
+    /// Like PadRight, but colour tags do not count towards the length.
+    /// </summary>
+    public static string PadRightVisible(this string str, int totalWidth, char padChar)
+    {
+      return str.PadRight(totalWidth + (str.Length - str.VisibleLength()), padChar);
+    }
+
+    /// <summary>
+    /// Like PadBoth, but colour tags do not count towards the length.
+    /// </summary>
+    public static string PadBothVisible(this string str, int totalWidth, char padChar)
+    {
+      return str.PadBoth(totalWidth + (str.Length - str.VisibleLength()), padChar);
+    }
+
     public static ConsoleColor GetColor(this string color)
     {
       ConsoleColor result = new ConsoleColor();

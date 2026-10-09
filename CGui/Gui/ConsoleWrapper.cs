@@ -1,8 +1,11 @@
 ﻿namespace CGui.Gui
 {
   using System;
+  using System.IO;
   using System.Text;
   using System.Text.RegularExpressions;
+  using System.Threading;
+  using CGui.Gui.Primitives;
 
 ///<summary>
 ///Class that converts color tags to actual console color when rendering line.
@@ -14,6 +17,100 @@
     /// Use to lock console operations
     /// </summary>
     internal object Lock = new object();
+
+    /// <summary>
+    /// How often, in milliseconds, the console is checked for a key press and a changed size while a
+    /// control waits for a key.
+    /// </summary>
+    private const int KeyPollMilliseconds = 40;
+
+    private readonly object _sizeLock = new object();
+    private SizeChangeDetector _sizeDetector;
+    private int _suspendedResize;
+
+    /// <summary>
+    /// Raised when the console was resized and the new size has settled. It is raised on the thread that
+    /// waits for a key, while a control waits in its keyboard loop, so there is no other drawing going on
+    /// at that moment. A viewport that is on screen redraws itself, see <see cref="Viewport.RefreshOnResize"/>.
+    /// </summary>
+    public event EventHandler Resized;
+
+    /// <summary>
+    /// Stops <see cref="Resized"/> from being raised until the result is disposed. The resize is reported
+    /// afterwards. Used while a dialog is on screen, redrawing what is under it would wipe it.
+    /// </summary>
+    internal IDisposable SuspendResize()
+    {
+      Interlocked.Increment(ref _suspendedResize);
+      return new ResizeSuspension(this);
+    }
+
+    private sealed class ResizeSuspension : IDisposable
+    {
+      private ConsoleWrapper _owner;
+
+      public ResizeSuspension(ConsoleWrapper owner)
+      {
+        _owner = owner;
+      }
+
+      public void Dispose()
+      {
+        var owner = Interlocked.Exchange(ref _owner, null);
+        if (owner != null)
+        {
+          Interlocked.Decrement(ref owner._suspendedResize);
+        }
+      }
+    }
+
+    /// <summary>
+    /// Checks if the console was resized and raises <see cref="Resized"/> once the new size has settled.
+    /// </summary>
+    private void CheckSize()
+    {
+      if (Volatile.Read(ref _suspendedResize) > 0)
+      {
+        return;
+      }
+
+      int width;
+      int height;
+      try
+      {
+        width = Console.WindowWidth;
+        height = Console.WindowHeight;
+      }
+      catch (IOException)
+      {
+        // no console to measure
+        return;
+      }
+
+      bool changed;
+      lock (_sizeLock)
+      {
+        if (_sizeDetector == null)
+        {
+          _sizeDetector = new SizeChangeDetector(width, height);
+          return;
+        }
+        changed = _sizeDetector.Poll(width, height);
+      }
+
+      if (changed)
+      {
+        try
+        {
+          Resized?.Invoke(this, EventArgs.Empty);
+        }
+        catch (Exception ex)
+        {
+          // a handler that fails must not end the keyboard loop of the application
+          System.Diagnostics.Trace.TraceError("CGui: handling of a console resize failed. " + ex);
+        }
+      }
+    }
 
     private static readonly ConsoleWrapper instance;
 
@@ -82,6 +179,16 @@
       CursorVisible = false;
       SaveColor();
       Console.OutputEncoding = Encoding.UTF8;
+
+      // the size the screen is going to be drawn for
+      try
+      {
+        _sizeDetector = new SizeChangeDetector(Console.WindowWidth, Console.WindowHeight);
+      }
+      catch (IOException)
+      {
+        // no console to measure, checked again when a key is waited for
+      }
     }
 
     /// <summary>
@@ -220,6 +327,12 @@
     internal void SetWindowSize(int width, int height)
     {
       Console.SetWindowSize(width, height);
+
+      // the application did this, it is not a resize to react to
+      lock (_sizeLock)
+      {
+        _sizeDetector = new SizeChangeDetector(Console.WindowWidth, Console.WindowHeight);
+      }
     }
 
     internal static string regexExcape = @"\p{C}\[([fb]?)\:?(\w+)\]";
@@ -301,6 +414,18 @@
     /// <returns>The <see cref="ConsoleKeyInfo"/></returns>
     internal ConsoleKeyInfo ReadKey(bool intercept)
     {
+      // with redirected input there is no key to wait for, Console.ReadKey reports that
+      if (Console.IsInputRedirected)
+      {
+        return Console.ReadKey(intercept);
+      }
+
+      // Console.ReadKey blocks until a key is pressed. Wait in short steps instead, to notice a resize.
+      while (!Console.KeyAvailable)
+      {
+        CheckSize();
+        Thread.Sleep(KeyPollMilliseconds);
+      }
       return Console.ReadKey(intercept);
     }
   }

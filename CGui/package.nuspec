@@ -30,6 +30,8 @@ Fixed scrolling past the max pages count. Still some quirks, needs testing.
 1.2.0 
 Changes in IScrollable class to support custom scroll char.</releaseNotes>
     <copyright>Copyright ©  2019</copyright>
+    <!-- shown on the package page on nuget.org, the file is added below -->
+    <readme>README.md</readme>
     <tags>
     </tags>
     <dependencies>
@@ -38,4 +40,7 @@ Changes in IScrollable class to support custom scroll char.</releaseNotes>
 -->
     </dependencies>
   </metadata>
+  <files>
+    <file src="..\README.md" target="" />
+  </files>
 </package>
